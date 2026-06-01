@@ -11,6 +11,8 @@ This repository is private while it is being checked and verified.
 
 ## Install
 
+### Method 1 - GitHub clone
+
 Clone the current version into `/home/pi`, remove an older downloaded copy if
 one is present, grant script permissions, and run the installer:
 
@@ -18,6 +20,22 @@ one is present, grant script permissions, and run the installer:
 cd /home/pi
 rm -rf Retro-Visuals
 git clone https://github.com/matelv-x/Retro-Visuals.git
+cd Retro-Visuals
+chmod +x install-retro-visuals.sh restore-retro-visuals.sh
+sudo ./install-retro-visuals.sh
+```
+
+### Method 2 - ZIP download
+
+Download and unpack the current version directly from GitHub:
+
+```bash
+cd /home/pi
+rm -rf Retro-Visuals Retro-Visuals-main Retro-Visuals-main.zip
+wget -O Retro-Visuals-main.zip \
+  https://github.com/matelv-x/Retro-Visuals/archive/refs/heads/main.zip
+unzip -o Retro-Visuals-main.zip
+mv Retro-Visuals-main Retro-Visuals
 cd Retro-Visuals
 chmod +x install-retro-visuals.sh restore-retro-visuals.sh
 sudo ./install-retro-visuals.sh
