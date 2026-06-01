@@ -1,6 +1,6 @@
 # Retro Visuals
 
-Optional visual settings overlay for the SG1 v4 Retro web interface.
+Optional visual settings overlay for the Retro web interface.
 
 This repository is private while it is being checked and verified.
 
