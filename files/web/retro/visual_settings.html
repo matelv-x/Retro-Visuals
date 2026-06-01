@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Retro Visuals | Stargate Command</title>
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/navigation.css" />
+    <link rel="stylesheet" href="css/retro_visuals.css" />
+    <link rel="stylesheet" href="css/visual_settings.css" />
+  </head>
+  <body>
+    <main class="visual-settings">
+      <h1>Retro Visuals</h1>
+      <div class="visual-grid">
+        <form id="retro-visuals-form" class="visual-form">
+          <div class="visual-field">
+            <label for="background-mode">Background</label>
+            <select id="background-mode">
+              <option value="default">Default</option>
+              <option value="custom">Custom image</option>
+            </select>
+          </div>
+          <div class="visual-field">
+            <label for="background-file">Custom image</label>
+            <input id="background-file" type="file" accept="image/png,image/jpeg,image/webp" />
+          </div>
+          <div class="visual-field">
+            <label for="incoming-style">Incoming call</label>
+            <select id="incoming-style">
+              <option value="classic">Classic</option>
+              <option value="enhanced">Enhanced</option>
+            </select>
+          </div>
+          <div class="visual-field">
+            <span class="visual-label">Incoming symbols</span>
+            <label class="visual-inline">
+              <input id="incoming-symbols-in-boxes" type="checkbox" />
+              <span>Symbols in boxes</span>
+            </label>
+          </div>
+          <div class="visual-field">
+            <span class="visual-label">Symbol glow</span>
+            <label class="visual-inline">
+              <input id="glow-enabled" type="checkbox" />
+              <span>Enabled</span>
+            </label>
+          </div>
+          <div class="visual-field">
+            <label for="glow-color">Glow color</label>
+            <input id="glow-color" type="color" value="#fffea5" />
+          </div>
+          <div class="visual-field">
+            <label for="glow-intensity">Glow intensity</label>
+            <div class="visual-inline">
+              <input id="glow-intensity" type="range" min="0" max="80" value="12" />
+              <output id="glow-intensity-value">12</output>
+            </div>
+          </div>
+          <div class="visual-actions">
+            <button type="submit">Save</button>
+          </div>
+          <div class="visual-message" role="status"></div>
+        </form>
+        <section class="visual-preview">
+          <div class="visual-preview-symbol">⌾</div>
+        </section>
+      </div>
+    </main>
+    <script src="js/retro_visuals.js"></script>
+    <script type="module" src="js/navigation.js"></script>
+    <script type="module" src="js/visual_settings.js"></script>
+  </body>
+</html>

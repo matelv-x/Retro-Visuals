@@ -1,0 +1,41 @@
+:root {
+  --retro-custom-background: none;
+  --retro-glow-color: #fffea5;
+  --retro-glow-strength: 12px;
+}
+
+body.retro-background-custom {
+  background-color: var(--background-color, #020f25);
+  background-image: var(--retro-custom-background);
+  background-position: center;
+  background-repeat: repeat;
+  background-size: auto;
+}
+
+body.retro-glow-enabled .dial-append .glyph.locked svg,
+body.retro-glow-enabled .destination-glyphs svg {
+  overflow: visible;
+}
+
+body.retro-glow-enabled .dial-append .glyph.locked:not(.blur) svg path.fil0,
+body.retro-glow-enabled .destination-glyphs svg path.fil0 {
+  filter: url("#retro-symbol-glow");
+}
+
+body.retro-glow-enabled .dial-append .glyph.locked:not(.blur) svg path:not(.fil0):not(.fil1),
+body.retro-glow-enabled .destination-glyphs svg path:not(.fil0):not(.fil1) {
+  filter: url("#retro-symbol-glow-large-viewbox");
+}
+
+body.retro-incoming-symbols .dial-append .clip-1.incoming,
+body.retro-incoming-symbols .dial-append .clip-2.incoming {
+  background-color: transparent;
+}
+
+body.retro-incoming-symbols .border.gdo-valid .chevron-box.locked.incoming {
+  background-color: transparent !important;
+}
+
+body.retro-incoming-enhanced .dial-append .chevron-link.locked path {
+  stroke: var(--color-good, #07ff0b);
+}
