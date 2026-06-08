@@ -16,7 +16,7 @@ command below always works from the same folder.
 
 ```bash
 cd /home/pi
-RELEASE="v1.2.4-test"
+RELEASE="retro-visual"
 PACKAGE="Retro-Visuals-${RELEASE#v}"
 ZIP="${RELEASE}.zip"
 
