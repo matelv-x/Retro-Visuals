@@ -8,8 +8,8 @@ body.retro-background-custom {
   background-color: var(--background-color, #020f25);
   background-image: var(--retro-custom-background);
   background-position: center;
-  background-repeat: repeat;
-  background-size: auto;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
 }
 
 body.retro-glow-enabled .dial-append .glyph.locked svg,

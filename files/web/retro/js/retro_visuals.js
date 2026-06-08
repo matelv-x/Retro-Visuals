@@ -14,7 +14,82 @@
   let incomingSignature = '';
   let incomingSymbolCount = 0;
   let incomingGlyphsReadyAt = 0;
+  let backgroundRequestId = 0;
   const originalFetch = window.fetch.bind(window);
+  const backgroundSizes = [
+    [5120, 1440],
+    [3840, 2160],
+    [3440, 1440],
+    [2560, 1600],
+    [2560, 1440],
+    [1920, 1200],
+    [1920, 1080],
+    [1600, 1200],
+    [1440, 2560],
+    [1280, 1024],
+    [1080, 1920],
+  ];
+  const backgroundExtensions = ['png', 'jpg', 'jpeg', 'webp'];
+
+  function imageExists(url) {
+    return new Promise(resolve => {
+      const image = new Image();
+      let finished = false;
+      const done = result => {
+        if (finished) return;
+        finished = true;
+        image.onload = null;
+        image.onerror = null;
+        resolve(result);
+      };
+      image.onload = () => done(true);
+      image.onerror = () => done(false);
+      window.setTimeout(() => done(false), 900);
+      image.src = url;
+    });
+  }
+
+  function rankedBackgroundCandidates() {
+    const width = Math.max(window.innerWidth || 0, window.screen?.width || 0, 1);
+    const height = Math.max(window.innerHeight || 0, window.screen?.height || 0, 1);
+    const targetAspect = width / height;
+    const targetPixels = width * height;
+
+    return backgroundSizes
+      .map(([candidateWidth, candidateHeight]) => ({
+        width: candidateWidth,
+        height: candidateHeight,
+        aspectDelta: Math.abs(candidateWidth / candidateHeight - targetAspect),
+        pixelDelta: Math.abs(candidateWidth * candidateHeight - targetPixels),
+      }))
+      .sort((a, b) => a.aspectDelta - b.aspectDelta || a.pixelDelta - b.pixelDelta)
+      .flatMap(candidate =>
+        backgroundExtensions.map(extension =>
+          `../images/backgrounds/background-${candidate.width}x${candidate.height}.${extension}`,
+        ),
+      );
+  }
+
+  function applyBackgroundUrl(url) {
+    document.documentElement.style.setProperty(
+      '--retro-custom-background',
+      url ? `url("${url}")` : 'none',
+    );
+  }
+
+  async function applyBestCustomBackground(fallbackUrl) {
+    const requestId = ++backgroundRequestId;
+    applyBackgroundUrl(fallbackUrl);
+
+    for (const candidate of rankedBackgroundCandidates()) {
+      if (await imageExists(candidate)) {
+        if (requestId === backgroundRequestId) applyBackgroundUrl(candidate);
+        return;
+      }
+    }
+
+    if (requestId === backgroundRequestId) applyBackgroundUrl(fallbackUrl);
+  }
 
   function updateSvgGlowFilter(nextSettings) {
     let host = document.querySelector('#retro-symbol-glow-host');
@@ -149,12 +224,12 @@
 
     const customBackground = settings.background_mode === 'custom' && settings.background_image;
     body.classList.toggle('retro-background-custom', Boolean(customBackground));
-    root.style.setProperty(
-      '--retro-custom-background',
-      customBackground
-        ? `url("../images/${encodeURIComponent(settings.background_image)}")`
-        : 'none',
-    );
+    if (customBackground) {
+      applyBestCustomBackground(`../images/${encodeURIComponent(settings.background_image)}`);
+    } else {
+      backgroundRequestId += 1;
+      applyBackgroundUrl('');
+    }
     return settings;
   }
 
@@ -183,4 +258,10 @@
   } else {
     load();
   }
+
+  window.addEventListener('resize', () => {
+    if (settings.background_mode === 'custom' && settings.background_image) {
+      applyBestCustomBackground(`../images/${encodeURIComponent(settings.background_image)}`);
+    }
+  });
 })();

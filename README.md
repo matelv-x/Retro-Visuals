@@ -62,6 +62,33 @@ sudo ./restore-retro-visuals.sh
 - Keeps the original Retro background or uploads a custom PNG, JPEG, or WebP image.
 - Stores the uploaded image inside the existing Retro image folder.
 - Preserves the selected background between service restarts.
+- Displays the custom Retro background as one scalable image fitted to the
+  full Retro screen/TV area, without repeated tiles or colored side fill.
+- Can automatically choose the closest matching resolution file for the
+  detected screen size.
+- Resolution-based background selection works only when matching files are
+  present in:
+
+```text
+/home/pi/sg1_v4/web/retro/images/backgrounds/
+```
+
+Use this naming format:
+
+```text
+background-WIDTHxHEIGHT.png
+```
+
+Example:
+
+```text
+background-1920x1080.png
+background-2560x1440.png
+background-3840x2160.png
+```
+
+If no matching resolution file is found, Retro Visuals falls back to the
+uploaded custom image.
 
 ### Incoming-call presentation
 
@@ -99,6 +126,19 @@ The selected configuration is stored in:
 ```text
 /home/pi/sg1_v4/config/retro-visuals.json
 ```
+
+## Versions
+
+Older releases remain available from the GitHub Releases or Tags page. Use an
+older tag if you want the previous Custom Retro background behavior.
+
+### Current version
+
+- Adds scalable Custom Retro backgrounds for TV/web screens.
+- Adds optional automatic resolution matching from
+  `/home/pi/sg1_v4/web/retro/images/backgrounds/`.
+- Keeps fallback behavior for gates that only have one uploaded custom
+  background image.
 
 ## Attribution and originality
 
