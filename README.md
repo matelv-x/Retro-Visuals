@@ -33,12 +33,6 @@ chmod +x install-retro-visuals.sh restore-retro-visuals.sh
 sudo ./install-retro-visuals.sh
 ```
 
-Open the Retro visual settings page:
-
-```text
-/retro/visual_settings.html
-```
-
 ## Restore / uninstall
 
 ```bash
