@@ -63,6 +63,17 @@ chmod +x restore-retro-visuals.sh
 sudo ./restore-retro-visuals.sh
 ```
 
+Restore removes the Retro Visuals menu link, injected JavaScript/CSS hooks,
+backend endpoints, and Retro Visuals overlay files. It preserves user data:
+
+```text
+/home/pi/sg1_v4/config/retro-visuals.json
+/home/pi/sg1_v4/web/retro/images/retro-custom-background.*
+/home/pi/sg1_v4/web/retro/images/backgrounds/
+```
+
+This lets a later reinstall reuse saved background settings and archives.
+
 ## Features
 
 ### Custom Retro background

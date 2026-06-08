@@ -642,13 +642,9 @@ def restore(app):
         if path.exists():
             path.unlink()
             print(f"Removed: {path}")
-    config = app / "config/retro-visuals.json"
-    if config.exists():
-        config.unlink()
-        print(f"Removed: {config}")
-    for image in (app / "web/retro/images").glob("retro-custom-background.*"):
-        image.unlink()
-        print(f"Removed: {image}")
+    print("Preserved: config/retro-visuals.json")
+    print("Preserved: web/retro/images/retro-custom-background.*")
+    print("Preserved: web/retro/images/backgrounds/")
 
 
 def main():
