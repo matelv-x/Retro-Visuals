@@ -46,6 +46,28 @@
   padding: 7px 10px;
 }
 
+.visual-background-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(86px, 1fr));
+  gap: 8px;
+}
+
+.visual-background-choice {
+  aspect-ratio: 16 / 9;
+  border: var(--border-thin);
+  border-radius: 4px;
+  background-color: var(--background-color);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  cursor: pointer;
+}
+
+.visual-background-choice.selected {
+  border-color: var(--color-good);
+  box-shadow: 0 0 0 2px var(--color-good);
+}
+
 .visual-inline {
   display: flex;
   align-items: center;
@@ -69,7 +91,8 @@
   background-color: var(--background-color);
   background-image: var(--retro-custom-background);
   background-position: center;
-  background-repeat: repeat;
+  background-repeat: no-repeat;
+  background-size: cover;
   display: grid;
   place-items: center;
 }

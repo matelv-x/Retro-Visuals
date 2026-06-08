@@ -228,6 +228,50 @@ def patch_web_server(path):
                 defaults.update(stored)
         except (FileNotFoundError, ValueError, OSError):
             pass
+        app_dir = Path(__file__).resolve().parent.parent
+        image_dir = app_dir / "web" / "retro" / "images"
+        background_dir = image_dir / "backgrounds"
+
+        def background_preview_url(folder, url_prefix):
+            if not folder.exists():
+                return ""
+            preferred = (
+                "background-1920x1080.jpg",
+                "background-1920x1080.png",
+                "background-2560x1440.jpg",
+                "background-2560x1440.png",
+                "background-3840x2160.jpg",
+                "background-3840x2160.png",
+            )
+            for name in preferred:
+                if (folder / name).exists():
+                    return f"{url_prefix}/{name}"
+            for image in sorted(folder.glob("background-*.*")):
+                return f"{url_prefix}/{image.name}"
+            return ""
+
+        archives = []
+        active_preview = background_preview_url(background_dir, "/retro/images/backgrounds")
+        if active_preview:
+            archives.append({
+                "id": "active",
+                "label": "Current background",
+                "preview": active_preview,
+            })
+
+        if background_dir.exists():
+            for folder in sorted(
+                (path for path in background_dir.iterdir() if path.is_dir() and path.name.isdigit()),
+                key=lambda path: int(path.name),
+            ):
+                preview = background_preview_url(folder, f"/retro/images/backgrounds/{folder.name}")
+                if preview:
+                    archives.append({
+                        "id": folder.name,
+                        "label": f"Saved background {folder.name}",
+                        "preview": preview,
+                    })
+        defaults["background_archives"] = archives
         return defaults
 
     def update_retro_visuals_config(self, updates):
@@ -243,6 +287,7 @@ def patch_web_server(path):
         glow_color = updates.get("glow_color", config["glow_color"])
         glow_enabled = updates.get("glow_enabled", config["glow_enabled"])
         glow_intensity = updates.get("glow_intensity", config["glow_intensity"])
+        background_archive = updates.get("background_archive", "")
 
         if background_mode not in ("default", "custom"):
             raise ValueError("Invalid background mode.")
@@ -258,6 +303,10 @@ def patch_web_server(path):
             glow_intensity = max(0, min(80, int(glow_intensity)))
         except (TypeError, ValueError):
             raise ValueError("Glow intensity must be a number from 0 to 80.")
+        if background_archive and (
+            background_archive != "active" and not str(background_archive).isdigit()
+        ):
+            raise ValueError("Invalid saved background selection.")
 
         app_dir = Path(__file__).resolve().parent.parent
         image_dir = app_dir / "web" / "retro" / "images"
@@ -277,6 +326,12 @@ def patch_web_server(path):
                 return []
             return sorted(
                 path for path in background_dir.glob("background-*.*")
+                if path.is_file()
+            )
+
+        def archived_variants(folder):
+            return sorted(
+                path for path in folder.glob("background-*.*")
                 if path.is_file()
             )
 
@@ -302,7 +357,7 @@ def patch_web_server(path):
         def archive_active_set():
             originals = active_originals()
             variants = active_variants()
-            if not originals and not variants:
+            if not variants:
                 return None
             destination = next_archive_dir()
             source_file = originals[0] if originals else None
@@ -318,6 +373,13 @@ def patch_web_server(path):
                 (path for path in background_dir.iterdir() if path.is_dir() and path.name.isdigit()),
                 key=lambda path: int(path.name),
             ):
+                if not archived_variants(folder):
+                    try:
+                        (folder / "manifest.json").unlink(missing_ok=True)
+                        folder.rmdir()
+                    except OSError:
+                        pass
+                    continue
                 manifest_path = folder / "manifest.json"
                 try:
                     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -348,6 +410,16 @@ def patch_web_server(path):
             return restored_original
 
         image_data = updates.get("background_data")
+        if background_archive and background_archive != "active" and not image_data:
+            archived = background_dir / str(background_archive)
+            if not archived.exists() or not archived_variants(archived):
+                raise ValueError("Selected saved background is not available.")
+            archive_active_set()
+            restored_original = restore_archived_set(archived)
+            config["background_image"] = restored_original.name if restored_original else config.get("background_image", "")
+            config["background_variants_reused"] = True
+            config["background_variants_restored_from"] = str(background_archive)
+
         if image_data:
             match = re.fullmatch(r"data:image/(png|jpeg|webp);base64,(.+)", image_data, re.DOTALL)
             if not match:

@@ -80,6 +80,8 @@ sudo ./restore-retro-visuals.sh
 
 - If the uploaded image matches an archived original image, Retro Visuals swaps
   the active set with that archived set instead of regenerating it.
+- The Visuals page shows saved background previews, so a user can choose an
+  already generated background set without uploading the image again.
 - Resolution-based background selection works only when matching files are
   present in:
 
@@ -158,6 +160,7 @@ older tag if you want the previous Custom Retro background behavior.
   the user uploads one custom background from the Visuals page.
 - Adds numbered background-set archiving and restores an archived set when the
   same original image is uploaded again.
+- Adds saved background previews and selection in the Visuals page.
 - Keeps fallback behavior for gates that only have one uploaded custom
   background image.
 

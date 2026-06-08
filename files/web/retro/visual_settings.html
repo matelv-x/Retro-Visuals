@@ -26,6 +26,13 @@
             <input id="background-file" type="file" accept="image/png,image/jpeg,image/webp" />
           </div>
           <div class="visual-field">
+            <label for="saved-background">Saved backgrounds</label>
+            <select id="saved-background">
+              <option value="">Upload or current</option>
+            </select>
+          </div>
+          <div id="saved-background-preview" class="visual-background-list" aria-live="polite"></div>
+          <div class="visual-field">
             <label for="incoming-style">Incoming call</label>
             <select id="incoming-style">
               <option value="classic">Classic</option>

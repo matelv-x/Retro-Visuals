@@ -1,6 +1,8 @@
 const form = document.querySelector('#retro-visuals-form');
 const backgroundMode = document.querySelector('#background-mode');
 const backgroundFile = document.querySelector('#background-file');
+const savedBackground = document.querySelector('#saved-background');
+const savedBackgroundPreview = document.querySelector('#saved-background-preview');
 const incomingStyle = document.querySelector('#incoming-style');
 const incomingSymbolsInBoxes = document.querySelector('#incoming-symbols-in-boxes');
 const glowEnabled = document.querySelector('#glow-enabled');
@@ -11,6 +13,40 @@ const preview = document.querySelector('.visual-preview');
 const message = document.querySelector('.visual-message');
 let uploadedBackground = '';
 let storedSettings = {};
+
+function renderSavedBackgrounds(settings) {
+  const archives = Array.isArray(settings.background_archives) ? settings.background_archives : [];
+  savedBackground.replaceChildren(new Option('Upload or current', ''));
+  savedBackgroundPreview.replaceChildren();
+
+  archives.forEach(archive => {
+    savedBackground.add(new Option(archive.label, archive.id));
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'visual-background-choice';
+    button.dataset.backgroundId = archive.id;
+    button.style.backgroundImage = `url("${archive.preview}")`;
+    button.setAttribute('aria-label', archive.label);
+    button.title = archive.label;
+    button.addEventListener('click', () => {
+      uploadedBackground = '';
+      backgroundFile.value = '';
+      backgroundMode.value = 'custom';
+      savedBackground.value = archive.id;
+      preview.style.backgroundImage = `url("${archive.preview}")`;
+      renderSavedBackgroundSelection();
+    });
+    savedBackgroundPreview.append(button);
+  });
+
+  renderSavedBackgroundSelection();
+}
+
+function renderSavedBackgroundSelection() {
+  savedBackgroundPreview.querySelectorAll('.visual-background-choice').forEach(button => {
+    button.classList.toggle('selected', button.dataset.backgroundId === savedBackground.value);
+  });
+}
 
 function renderPreview() {
   glowIntensityValue.value = glowIntensity.value;
@@ -29,6 +65,7 @@ function setForm(settings) {
   glowEnabled.checked = Boolean(settings.glow_enabled);
   glowColor.value = settings.glow_color || '#fffea5';
   glowIntensity.value = settings.glow_intensity ?? 12;
+  renderSavedBackgrounds(settings);
   renderPreview();
 }
 
@@ -51,8 +88,24 @@ backgroundFile.addEventListener('change', () => {
     uploadedBackground = reader.result;
     preview.style.backgroundImage = `url("${reader.result}")`;
     backgroundMode.value = 'custom';
+    savedBackground.value = '';
+    renderSavedBackgroundSelection();
   });
   reader.readAsDataURL(file);
+});
+
+[savedBackground].forEach(control => {
+  control.addEventListener('input', () => {
+    uploadedBackground = '';
+    backgroundFile.value = '';
+    const archive = (storedSettings.background_archives || [])
+      .find(item => item.id === savedBackground.value);
+    if (archive) {
+      backgroundMode.value = 'custom';
+      preview.style.backgroundImage = `url("${archive.preview}")`;
+    }
+    renderSavedBackgroundSelection();
+  });
 });
 
 [glowEnabled, glowColor, glowIntensity].forEach(control => {
@@ -71,6 +124,9 @@ form.addEventListener('submit', async event => {
     glow_intensity: Number(glowIntensity.value),
   };
   if (uploadedBackground) payload.background_data = uploadedBackground;
+  if (!uploadedBackground && savedBackground.value) {
+    payload.background_archive = savedBackground.value;
+  }
 
   const response = await fetch('/stargate/update/retro_visuals', {
     method: 'POST',
