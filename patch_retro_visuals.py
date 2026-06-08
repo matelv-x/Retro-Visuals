@@ -542,7 +542,12 @@ def restore(app):
     navigation = app / "web/retro/js/navigation.js"
     if navigation.exists():
         text = navigation.read_text(encoding="utf-8")
-        text = text.replace("\nimport './retro_visuals.js';", "")
+        text = re.sub(
+            r"\n\s*import\s+['\"]\./retro_visuals\.js(?:\?[^'\"]*)?['\"]\s*;",
+            "",
+            text,
+            count=1,
+        )
         text = re.sub(
             r"\n\s*<a \$\{isActive\('/retro/visual_settings\.html'\)\}>Visuals</a>",
             "",
