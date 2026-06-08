@@ -68,6 +68,18 @@ sudo ./restore-retro-visuals.sh
   to generate the resolution files automatically from that one original image.
 - Automatic generation uses Pillow. The installer installs Pillow into the SG1
   Python environment when it is missing.
+- When a new custom background is uploaded, the current generated background
+  set is archived instead of being deleted.
+- Archived background sets are stored in numbered folders:
+
+```text
+/home/pi/sg1_v4/web/retro/images/backgrounds/1/
+/home/pi/sg1_v4/web/retro/images/backgrounds/2/
+/home/pi/sg1_v4/web/retro/images/backgrounds/3/
+```
+
+- If the uploaded image matches an archived original image, Retro Visuals swaps
+  the active set with that archived set instead of regenerating it.
 - Resolution-based background selection works only when matching files are
   present in:
 
@@ -144,6 +156,8 @@ older tag if you want the previous Custom Retro background behavior.
   `/home/pi/sg1_v4/web/retro/images/backgrounds/`.
 - Adds test support for generating those resolution files automatically when
   the user uploads one custom background from the Visuals page.
+- Adds numbered background-set archiving and restores an archived set when the
+  same original image is uploaded again.
 - Keeps fallback behavior for gates that only have one uploaded custom
   background image.
 

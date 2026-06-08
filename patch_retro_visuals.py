@@ -174,6 +174,8 @@ def patch_web_server(path):
     )
     if "import base64" not in text:
         text = text.replace("import os\n", "import os\nimport base64\nimport binascii\n", 1)
+    if "import hashlib" not in text:
+        text = text.replace("import os\n", "import os\nimport hashlib\n", 1)
     if "import re" not in text:
         text = text.replace("import os\n", "import os\nimport re\n", 1)
     if "from pathlib import Path" not in text:
@@ -261,6 +263,90 @@ def patch_web_server(path):
         image_dir = app_dir / "web" / "retro" / "images"
         image_dir.mkdir(parents=True, exist_ok=True)
         background_dir = image_dir / "backgrounds"
+
+        def original_hash(path):
+            if not path.exists():
+                return ""
+            return hashlib.sha256(path.read_bytes()).hexdigest()
+
+        def active_originals():
+            return sorted(image_dir.glob("retro-custom-background.*"))
+
+        def active_variants():
+            if not background_dir.exists():
+                return []
+            return sorted(
+                path for path in background_dir.glob("background-*.*")
+                if path.is_file()
+            )
+
+        def next_archive_dir():
+            background_dir.mkdir(parents=True, exist_ok=True)
+            index = 1
+            while (background_dir / str(index)).exists():
+                index += 1
+            destination = background_dir / str(index)
+            destination.mkdir()
+            return destination
+
+        def write_manifest(folder, source_file):
+            manifest = {
+                "source_file": source_file.name if source_file else "",
+                "source_sha256": original_hash(source_file) if source_file else "",
+            }
+            (folder / "manifest.json").write_text(
+                json.dumps(manifest, indent=2) + "\n",
+                encoding="utf-8",
+            )
+
+        def archive_active_set():
+            originals = active_originals()
+            variants = active_variants()
+            if not originals and not variants:
+                return None
+            destination = next_archive_dir()
+            source_file = originals[0] if originals else None
+            for path in originals + variants:
+                path.rename(destination / path.name)
+            write_manifest(destination, destination / source_file.name if source_file else None)
+            return destination
+
+        def find_archived_set(source_sha256):
+            if not background_dir.exists():
+                return None
+            for folder in sorted(
+                (path for path in background_dir.iterdir() if path.is_dir() and path.name.isdigit()),
+                key=lambda path: int(path.name),
+            ):
+                manifest_path = folder / "manifest.json"
+                try:
+                    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+                except (FileNotFoundError, ValueError, OSError):
+                    manifest = {}
+                if manifest.get("source_sha256") == source_sha256:
+                    return folder
+                for original in folder.glob("retro-custom-background.*"):
+                    if original_hash(original) == source_sha256:
+                        return folder
+            return None
+
+        def restore_archived_set(folder):
+            restored_original = None
+            for path in sorted(folder.iterdir()):
+                if path.name == "manifest.json":
+                    continue
+                if path.name.startswith("retro-custom-background."):
+                    target = image_dir / path.name
+                    path.rename(target)
+                    restored_original = target
+                elif path.name.startswith("background-"):
+                    path.rename(background_dir / path.name)
+            try:
+                folder.rmdir()
+            except OSError:
+                pass
+            return restored_original
+
         image_data = updates.get("background_data")
         if image_data:
             match = re.fullmatch(r"data:image/(png|jpeg|webp);base64,(.+)", image_data, re.DOTALL)
@@ -273,52 +359,66 @@ def patch_web_server(path):
                 raise ValueError("Unable to decode the uploaded background.")
             if not decoded or len(decoded) > 8 * 1024 * 1024:
                 raise ValueError("Background image must be smaller than 8 MB.")
-            for old_image in image_dir.glob("retro-custom-background.*"):
-                old_image.unlink()
+            uploaded_sha256 = hashlib.sha256(decoded).hexdigest()
+            current_originals = active_originals()
+            current_sha256 = original_hash(current_originals[0]) if current_originals else ""
+            archived = find_archived_set(uploaded_sha256)
             image_name = f"retro-custom-background.{extension}"
-            source_path = image_dir / image_name
-            source_path.write_bytes(decoded)
-            config["background_image"] = image_name
-            try:
-                from PIL import Image, ImageOps
+            if current_sha256 == uploaded_sha256:
+                config["background_image"] = current_originals[0].name if current_originals else image_name
+                config["background_variants_reused"] = True
+            elif archived:
+                archive_active_set()
+                restored_original = restore_archived_set(archived)
+                config["background_image"] = restored_original.name if restored_original else image_name
+                config["background_variants_reused"] = True
+                config["background_variants_restored_from"] = archived.name
+            else:
+                archive_active_set()
+                source_path = image_dir / image_name
+                source_path.write_bytes(decoded)
+                config["background_image"] = image_name
+                try:
+                    from PIL import Image, ImageOps
 
-                background_dir.mkdir(parents=True, exist_ok=True)
-                for old_variant in background_dir.glob("background-*.*"):
-                    old_variant.unlink()
+                    background_dir.mkdir(parents=True, exist_ok=True)
+                    for old_variant in active_variants():
+                        old_variant.unlink()
 
-                sizes = (
-                    (5120, 1440),
-                    (3840, 2160),
-                    (3440, 1440),
-                    (2560, 1600),
-                    (2560, 1440),
-                    (1920, 1200),
-                    (1920, 1080),
-                    (1600, 1200),
-                    (1440, 2560),
-                    (1280, 1024),
-                    (1080, 1920),
-                )
-                with Image.open(source_path) as uploaded:
-                    image = ImageOps.exif_transpose(uploaded).convert("RGB")
-                    for width, height in sizes:
-                        variant = ImageOps.fit(
-                            image,
-                            (width, height),
-                            method=Image.Resampling.LANCZOS,
-                            centering=(0.5, 0.5),
-                        )
-                        variant.save(
-                            background_dir / f"background-{width}x{height}.jpg",
-                            "JPEG",
-                            quality=92,
-                            optimize=True,
-                            progressive=True,
-                        )
-                config["background_variants_generated"] = True
-            except Exception as ex:
-                config["background_variants_generated"] = False
-                config["background_variant_error"] = str(ex)
+                    sizes = (
+                        (5120, 1440),
+                        (3840, 2160),
+                        (3440, 1440),
+                        (2560, 1600),
+                        (2560, 1440),
+                        (1920, 1200),
+                        (1920, 1080),
+                        (1600, 1200),
+                        (1440, 2560),
+                        (1280, 1024),
+                        (1080, 1920),
+                    )
+                    with Image.open(source_path) as uploaded:
+                        image = ImageOps.exif_transpose(uploaded).convert("RGB")
+                        for width, height in sizes:
+                            variant = ImageOps.fit(
+                                image,
+                                (width, height),
+                                method=Image.Resampling.LANCZOS,
+                                centering=(0.5, 0.5),
+                            )
+                            variant.save(
+                                background_dir / f"background-{width}x{height}.jpg",
+                                "JPEG",
+                                quality=92,
+                                optimize=True,
+                                progressive=True,
+                            )
+                    config["background_variants_generated"] = True
+                    config["background_variants_reused"] = False
+                except Exception as ex:
+                    config["background_variants_generated"] = False
+                    config["background_variant_error"] = str(ex)
 
         config.update({
             "background_mode": background_mode,
