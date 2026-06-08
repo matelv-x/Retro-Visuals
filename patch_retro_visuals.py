@@ -295,7 +295,7 @@ def patch_web_server(path):
                 "source_sha256": original_hash(source_file) if source_file else "",
             }
             (folder / "manifest.json").write_text(
-                json.dumps(manifest, indent=2) + "\n",
+                json.dumps(manifest, indent=2) + chr(10),
                 encoding="utf-8",
             )
 
@@ -429,7 +429,7 @@ def patch_web_server(path):
             "glow_intensity": glow_intensity
         })
         config_path = app_dir / "config" / "retro-visuals.json"
-        config_path.write_text(json.dumps(config, indent=2) + "\n", encoding="utf-8")
+        config_path.write_text(json.dumps(config, indent=2) + chr(10), encoding="utf-8")
         config["success"] = True
         return config
     # RETRO_VISUALS_HELPERS_END
