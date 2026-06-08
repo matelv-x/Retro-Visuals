@@ -64,6 +64,10 @@ sudo ./restore-retro-visuals.sh
   full Retro screen/TV area, without repeated tiles or colored side fill.
 - Can automatically choose the closest matching resolution file for the
   detected screen size.
+- When a custom background is uploaded from the Visuals page, the backend tries
+  to generate the resolution files automatically from that one original image.
+- Automatic generation uses Pillow. The installer installs Pillow into the SG1
+  Python environment when it is missing.
 - Resolution-based background selection works only when matching files are
   present in:
 
@@ -87,6 +91,9 @@ background-3840x2160.png
 
 If no matching resolution file is found, Retro Visuals falls back to the
 uploaded custom image.
+
+The generated files use centered cover/crop scaling, so each target resolution
+is filled without repeated tiles or colored side fill.
 
 ### Incoming-call presentation
 
@@ -135,6 +142,8 @@ older tag if you want the previous Custom Retro background behavior.
 - Adds scalable Custom Retro backgrounds for TV/web screens.
 - Adds optional automatic resolution matching from
   `/home/pi/sg1_v4/web/retro/images/backgrounds/`.
+- Adds test support for generating those resolution files automatically when
+  the user uploads one custom background from the Visuals page.
 - Keeps fallback behavior for gates that only have one uploaded custom
   background image.
 

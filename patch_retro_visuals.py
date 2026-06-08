@@ -206,8 +206,7 @@ def patch_web_server(path):
             fail("Unable to add Retro Visuals POST endpoint")
         text = text.replace(anchor, block + anchor, 1)
 
-    if "def get_retro_visuals_config(self):" not in text:
-        helper = r'''
+    helper = r'''
 
     # RETRO_VISUALS_HELPERS_START
     def get_retro_visuals_config(self):
@@ -261,6 +260,7 @@ def patch_web_server(path):
         app_dir = Path(__file__).resolve().parent.parent
         image_dir = app_dir / "web" / "retro" / "images"
         image_dir.mkdir(parents=True, exist_ok=True)
+        background_dir = image_dir / "backgrounds"
         image_data = updates.get("background_data")
         if image_data:
             match = re.fullmatch(r"data:image/(png|jpeg|webp);base64,(.+)", image_data, re.DOTALL)
@@ -276,8 +276,49 @@ def patch_web_server(path):
             for old_image in image_dir.glob("retro-custom-background.*"):
                 old_image.unlink()
             image_name = f"retro-custom-background.{extension}"
-            (image_dir / image_name).write_bytes(decoded)
+            source_path = image_dir / image_name
+            source_path.write_bytes(decoded)
             config["background_image"] = image_name
+            try:
+                from PIL import Image, ImageOps
+
+                background_dir.mkdir(parents=True, exist_ok=True)
+                for old_variant in background_dir.glob("background-*.*"):
+                    old_variant.unlink()
+
+                sizes = (
+                    (5120, 1440),
+                    (3840, 2160),
+                    (3440, 1440),
+                    (2560, 1600),
+                    (2560, 1440),
+                    (1920, 1200),
+                    (1920, 1080),
+                    (1600, 1200),
+                    (1440, 2560),
+                    (1280, 1024),
+                    (1080, 1920),
+                )
+                with Image.open(source_path) as uploaded:
+                    image = ImageOps.exif_transpose(uploaded).convert("RGB")
+                    for width, height in sizes:
+                        variant = ImageOps.fit(
+                            image,
+                            (width, height),
+                            method=Image.Resampling.LANCZOS,
+                            centering=(0.5, 0.5),
+                        )
+                        variant.save(
+                            background_dir / f"background-{width}x{height}.jpg",
+                            "JPEG",
+                            quality=92,
+                            optimize=True,
+                            progressive=True,
+                        )
+                config["background_variants_generated"] = True
+            except Exception as ex:
+                config["background_variants_generated"] = False
+                config["background_variant_error"] = str(ex)
 
         config.update({
             "background_mode": background_mode,
@@ -293,6 +334,15 @@ def patch_web_server(path):
         return config
     # RETRO_VISUALS_HELPERS_END
 '''
+    if "# RETRO_VISUALS_HELPERS_START" in text and "# RETRO_VISUALS_HELPERS_END" in text:
+        text = re.sub(
+            r"\n\n    # RETRO_VISUALS_HELPERS_START.*?    # RETRO_VISUALS_HELPERS_END\n?",
+            helper + "\n",
+            text,
+            count=1,
+            flags=re.DOTALL,
+        )
+    elif "def get_retro_visuals_config(self):" not in text:
         text = text.rstrip() + helper + "\n"
 
     write_if_changed(path, text)

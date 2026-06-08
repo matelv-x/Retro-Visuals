@@ -29,7 +29,7 @@
     [1280, 1024],
     [1080, 1920],
   ];
-  const backgroundExtensions = ['png', 'jpg', 'jpeg', 'webp'];
+  const backgroundExtensions = ['jpg', 'jpeg', 'png', 'webp'];
 
   function imageExists(url) {
     return new Promise(resolve => {
