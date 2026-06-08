@@ -2,8 +2,6 @@
 
 Optional visual settings overlay for the Retro web interface.
 
-This repository is private while it is being checked and verified.
-
 ## Requirements
 
 - SG1 v4 installed in `/home/pi/sg1_v4`.
