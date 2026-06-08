@@ -9,24 +9,8 @@ Optional visual settings overlay for the Retro web interface.
 
 ## Install
 
-### Method 1 - GitHub clone
-
-Clone the current version into `/home/pi`, remove an older downloaded copy if
-one is present, grant script permissions, and run the installer:
-
-```bash
-cd /home/pi
-rm -rf Retro-Visuals
-git clone https://github.com/matelv-x/Retro-Visuals.git
-cd Retro-Visuals
-chmod +x install-retro-visuals.sh restore-retro-visuals.sh
-sudo ./install-retro-visuals.sh
-```
-
-### Method 2 - versioned ZIP download
-
-Download and unpack a specific release/tag directly from GitHub. Change only
-the `RELEASE` value when installing a different version. The command converts
+### ZIP download
+Change only the `RELEASE` value when installing a different version. The command converts
 GitHub's extracted folder name back to `/home/pi/Retro-Visuals`, so the restore
 command below always works from the same folder.
 
