@@ -23,17 +23,27 @@ chmod +x install-retro-visuals.sh restore-retro-visuals.sh
 sudo ./install-retro-visuals.sh
 ```
 
-### Method 2 - ZIP download
+### Method 2 - versioned ZIP download
 
-Download and unpack the current version directly from GitHub:
+Download and unpack a specific release/tag directly from GitHub. Change only
+the `RELEASE` value when installing a different version. The command converts
+GitHub's extracted folder name back to `/home/pi/Retro-Visuals`, so the restore
+command below always works from the same folder.
 
 ```bash
 cd /home/pi
-rm -rf Retro-Visuals Retro-Visuals-main Retro-Visuals-main.zip
-wget -O Retro-Visuals-main.zip \
-  https://github.com/matelv-x/Retro-Visuals/archive/refs/heads/main.zip
-unzip -o Retro-Visuals-main.zip
-mv Retro-Visuals-main Retro-Visuals
+RELEASE="v1.2.4-test"
+PACKAGE="Retro-Visuals-${RELEASE#v}"
+ZIP="${RELEASE}.zip"
+
+rm -rf Retro-Visuals "$PACKAGE" "$ZIP"
+
+wget -O "$ZIP" \
+  "https://github.com/matelv-x/Retro-Visuals/archive/refs/tags/${RELEASE}.zip"
+
+unzip -o "$ZIP"
+mv "$PACKAGE" Retro-Visuals
+
 cd Retro-Visuals
 chmod +x install-retro-visuals.sh restore-retro-visuals.sh
 sudo ./install-retro-visuals.sh
