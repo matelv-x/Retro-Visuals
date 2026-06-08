@@ -14,6 +14,29 @@ const message = document.querySelector('.visual-message');
 let uploadedBackground = '';
 let storedSettings = {};
 
+function refreshRetroAfterSave() {
+  const token = Date.now().toString();
+  const fallback = `dial.html?_refresh=${token}`;
+  const referrer = document.referrer;
+
+  if (!referrer) {
+    window.location.href = fallback;
+    return;
+  }
+
+  try {
+    const url = new URL(referrer, window.location.href);
+    if (url.origin !== window.location.origin || !url.pathname.includes('/retro/')) {
+      window.location.href = fallback;
+      return;
+    }
+    url.searchParams.set('_refresh', token);
+    window.location.href = url.toString();
+  } catch (error) {
+    window.location.href = fallback;
+  }
+}
+
 function renderSavedBackgrounds(settings) {
   const archives = Array.isArray(settings.background_archives) ? settings.background_archives : [];
   savedBackground.replaceChildren(new Option('Upload or current', ''));
@@ -141,13 +164,7 @@ form.addEventListener('submit', async event => {
   setForm(result);
   window.retroVisuals.apply(result);
   message.textContent = 'Settings saved.';
-  setTimeout(() => {
-    if (window.history.length > 1) {
-      window.history.back();
-    } else {
-      window.location.href = 'dial.html';
-    }
-  }, 250);
+  setTimeout(refreshRetroAfterSave, 250);
 });
 
 loadSettings().catch(error => {

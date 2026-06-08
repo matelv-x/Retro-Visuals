@@ -82,6 +82,8 @@ sudo ./restore-retro-visuals.sh
   the active set with that archived set instead of regenerating it.
 - The Visuals page shows saved background previews, so a user can choose an
   already generated background set without uploading the image again.
+- After saving Visuals settings, the page returns to Retro with a cache-busting
+  refresh token so the selected background appears immediately.
 - Resolution-based background selection works only when matching files are
   present in:
 
@@ -161,6 +163,7 @@ older tag if you want the previous Custom Retro background behavior.
 - Adds numbered background-set archiving and restores an archived set when the
   same original image is uploaded again.
 - Adds saved background previews and selection in the Visuals page.
+- Adds automatic cache-busting refresh after saving a background.
 - Keeps fallback behavior for gates that only have one uploaded custom
   background image.
 
