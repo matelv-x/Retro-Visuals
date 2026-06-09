@@ -24,6 +24,13 @@ PATCHED_FILES = (
     "web/retro/dial.html",
     "web/retro/dial9.html",
 )
+RETRO_VISUAL_PAGES = (
+    "web/retro/dial.html",
+    "web/retro/dial9.html",
+    "web/retro/address_book.html",
+    "web/retro/info.html",
+    "web/retro/symbol_overview.html",
+)
 
 
 def fail(message):
@@ -68,14 +75,20 @@ def patch_html(path):
             '    <link rel="stylesheet" href="css/dial9.css" />',
         )
         anchor = next((candidate for candidate in anchors if candidate in text), None)
-        if not anchor:
+        if anchor:
+            text = text.replace(anchor, anchor + "\n" + css, 1)
+        elif "</head>" in text:
+            text = text.replace("</head>", css + "\n</head>", 1)
+        else:
             fail(f"Unable to patch stylesheet into {path}")
-        text = text.replace(anchor, anchor + "\n" + css, 1)
     if "js/retro_visuals.js" not in text:
         anchor = '    <script type="module" src="js/startup.js"></script>'
-        if anchor not in text:
+        if anchor in text:
+            text = text.replace(anchor, script + "\n" + anchor, 1)
+        elif "</body>" in text:
+            text = text.replace("</body>", script + "\n</body>", 1)
+        else:
             fail(f"Unable to patch runtime script into {path}")
-        text = text.replace(anchor, script + "\n" + anchor, 1)
     write_if_changed(path, text)
 
 
@@ -535,8 +548,10 @@ def install(app, files):
     copy_owned_files(app, files)
     patch_navigation(app / "web/retro/js/navigation.js")
     patch_dial(app / "web/retro/js/dial.js")
-    patch_html(app / "web/retro/dial.html")
-    patch_html(app / "web/retro/dial9.html")
+    for rel in RETRO_VISUAL_PAGES:
+        path = app / rel
+        if path.exists():
+            patch_html(path)
     patch_web_server(app / "classes/web_server.py")
     py_compile.compile(
         str(app / "classes/web_server.py"),
@@ -604,11 +619,11 @@ def restore(app):
         dial.write_text(text, encoding="utf-8")
         print(f"Cleaned: {dial}")
 
-    for rel in ("web/retro/dial.html", "web/retro/dial9.html"):
+    for rel in RETRO_VISUAL_PAGES:
         path = app / rel
         if path.exists():
             text = path.read_text(encoding="utf-8")
-            text = re.sub(r'\n\s*<link rel="stylesheet" href="css/retro_visuals\.css" />', "", text, count=1)
+            text = re.sub(r'\n\s*<link rel="stylesheet" href="css/retro_visuals\.css(?:\?v=[^"]*)?" />', "", text, count=1)
             text = re.sub(r'\n\s*<script src="js/retro_visuals\.js(?:\?v=[^"]*)?"></script>', "", text, count=1)
             path.write_text(text, encoding="utf-8")
             print(f"Cleaned: {path}")
