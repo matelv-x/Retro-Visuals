@@ -265,6 +265,13 @@ def patch_web_server(path):
                 key=lambda path: int(path.name),
             ):
                 preview = background_preview_url(folder, f"/retro/images/backgrounds/{folder.name}")
+                if not preview:
+                    try:
+                        (folder / "manifest.json").unlink(missing_ok=True)
+                        folder.rmdir()
+                    except OSError:
+                        pass
+                    continue
                 if preview:
                     archives.append({
                         "id": folder.name,
@@ -403,6 +410,7 @@ def patch_web_server(path):
                     restored_original = target
                 elif path.name.startswith("background-"):
                     path.rename(background_dir / path.name)
+            (folder / "manifest.json").unlink(missing_ok=True)
             try:
                 folder.rmdir()
             except OSError:
