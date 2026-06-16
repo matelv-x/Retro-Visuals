@@ -4,6 +4,7 @@
   const defaults = {
     background_mode: 'default',
     background_image: '',
+    background_version: 0,
     incoming_style: 'classic',
     incoming_symbols_in_boxes: false,
     glow_enabled: false,
@@ -77,18 +78,25 @@
     );
   }
 
+  function versionedBackgroundUrl(url) {
+    const version = Number(settings.background_version) || 0;
+    if (!url || !version) return url;
+    return `${url}${url.includes('?') ? '&' : '?'}v=${version}`;
+  }
+
   async function applyBestCustomBackground(fallbackUrl) {
     const requestId = ++backgroundRequestId;
-    applyBackgroundUrl(fallbackUrl);
+    applyBackgroundUrl(versionedBackgroundUrl(fallbackUrl));
 
     for (const candidate of rankedBackgroundCandidates()) {
-      if (await imageExists(candidate)) {
-        if (requestId === backgroundRequestId) applyBackgroundUrl(candidate);
+      const versionedCandidate = versionedBackgroundUrl(candidate);
+      if (await imageExists(versionedCandidate)) {
+        if (requestId === backgroundRequestId) applyBackgroundUrl(versionedCandidate);
         return;
       }
     }
 
-    if (requestId === backgroundRequestId) applyBackgroundUrl(fallbackUrl);
+    if (requestId === backgroundRequestId) applyBackgroundUrl(versionedBackgroundUrl(fallbackUrl));
   }
 
   function updateSvgGlowFilter(nextSettings) {

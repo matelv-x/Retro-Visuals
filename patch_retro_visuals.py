@@ -191,6 +191,8 @@ def patch_web_server(path):
         text = text.replace("import os\n", "import os\nimport hashlib\n", 1)
     if "import re" not in text:
         text = text.replace("import os\n", "import os\nimport re\n", 1)
+    if "import time" not in text:
+        text = text.replace("import os\n", "import os\nimport time\n", 1)
     if "from pathlib import Path" not in text:
         text = text.replace(
             "from http.server import SimpleHTTPRequestHandler\n",
@@ -228,6 +230,7 @@ def patch_web_server(path):
         defaults = {
             "background_mode": "default",
             "background_image": "",
+            "background_version": 0,
             "incoming_style": "classic",
             "incoming_symbols_in_boxes": False,
             "glow_enabled": False,
@@ -258,9 +261,9 @@ def patch_web_server(path):
             )
             for name in preferred:
                 if (folder / name).exists():
-                    return f"{url_prefix}/{name}"
+                    return f"{url_prefix}/{name}?v={defaults.get('background_version', 0)}"
             for image in sorted(folder.glob("background-*.*")):
-                return f"{url_prefix}/{image.name}"
+                return f"{url_prefix}/{image.name}?v={defaults.get('background_version', 0)}"
             return ""
 
         archives = []
@@ -332,6 +335,7 @@ def patch_web_server(path):
         image_dir = app_dir / "web" / "retro" / "images"
         image_dir.mkdir(parents=True, exist_ok=True)
         background_dir = image_dir / "backgrounds"
+        background_changed = False
 
         def original_hash(path):
             if not path.exists():
@@ -440,6 +444,7 @@ def patch_web_server(path):
             config["background_image"] = restored_original.name if restored_original else config.get("background_image", "")
             config["background_variants_reused"] = True
             config["background_variants_restored_from"] = str(background_archive)
+            background_changed = True
 
         if image_data:
             match = re.fullmatch(r"data:image/(png|jpeg|webp);base64,(.+)", image_data, re.DOTALL)
@@ -466,11 +471,13 @@ def patch_web_server(path):
                 config["background_image"] = restored_original.name if restored_original else image_name
                 config["background_variants_reused"] = True
                 config["background_variants_restored_from"] = archived.name
+                background_changed = True
             else:
                 archive_active_set()
                 source_path = image_dir / image_name
                 source_path.write_bytes(decoded)
                 config["background_image"] = image_name
+                background_changed = True
                 try:
                     from PIL import Image, ImageOps
 
@@ -512,6 +519,9 @@ def patch_web_server(path):
                 except Exception as ex:
                     config["background_variants_generated"] = False
                     config["background_variant_error"] = str(ex)
+
+        if background_changed:
+            config["background_version"] = int(time.time())
 
         config.update({
             "background_mode": background_mode,

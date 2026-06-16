@@ -93,12 +93,16 @@ This lets a later reinstall reuse saved background settings and archives.
 Use this naming format:
 
 ```text
+background-WIDTHxHEIGHT.jpg
+background-WIDTHxHEIGHT.jpeg
 background-WIDTHxHEIGHT.png
+background-WIDTHxHEIGHT.webp
 ```
 
 Example:
 
 ```text
+background-1920x1080.jpg
 background-1920x1080.png
 background-2560x1440.png
 background-3840x2160.png
