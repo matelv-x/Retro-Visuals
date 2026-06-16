@@ -79,15 +79,9 @@
   align-items: center;
 }
 
-.visual-file-control input[type="file"] {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
-  pointer-events: none;
-}
-
 .visual-file-button {
+  position: relative;
+  overflow: hidden;
   min-height: 36px;
   border: var(--border-thin);
   border-radius: 4px;
@@ -100,6 +94,15 @@
   padding: 6px 12px;
   touch-action: manipulation;
   user-select: none;
+}
+
+.visual-file-button input[type="file"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.001;
+  cursor: pointer;
 }
 
 .visual-file-button:hover {
