@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Retro Visual Preview</title>
+    <link rel="stylesheet" href="css/retro_visuals.css" />
+    <style>
+      :root {
+        --background-color: #020f25;
+        --glyph-color: #fffea5;
+        --color: #37bfde;
+        --color-dark: #4a7297;
+        --color-good: #07ff0b;
+        --color-alt: #78dcff;
+        --border: solid clamp(1px, 0.35vmin, 4px) var(--color);
+        --border-thin: solid clamp(1px, 0.22vmin, 3px) var(--color);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        background-color: var(--background-color);
+        background-image: var(--retro-custom-background);
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        color: var(--color-alt);
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      .preview-shell {
+        position: absolute;
+        inset: 8% 10%;
+        display: grid;
+        grid-template-columns: 18% 1fr 16%;
+        grid-template-rows: 12% 1fr 12%;
+        gap: 2%;
+        border: var(--border);
+        border-radius: 2vmin;
+        padding: 2%;
+        background: rgba(2, 15, 37, 0.58);
+      }
+
+      .preview-name,
+      .preview-status {
+        border: var(--border-thin);
+        display: flex;
+        align-items: center;
+        padding: 0 3%;
+      }
+
+      .preview-name {
+        grid-column: 1 / 3;
+        color: var(--retro-gate-name-color, var(--color-alt));
+        font-size: clamp(14px, 2.6vw, 34px);
+      }
+
+      .preview-status {
+        justify-content: center;
+        font-size: clamp(12px, 2.2vw, 30px);
+      }
+
+      .preview-keyboard {
+        border: var(--border-thin);
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 2%;
+        padding: 8%;
+      }
+
+      .preview-keyboard span,
+      .preview-boxes span {
+        color: var(--retro-keyboard-symbol-color, var(--glyph-color));
+        display: grid;
+        place-items: center;
+        font-size: clamp(14px, 2.4vw, 32px);
+        line-height: 1;
+      }
+
+      .preview-ring {
+        position: relative;
+        display: grid;
+        place-items: center;
+        min-width: 0;
+      }
+
+      .preview-ring::before,
+      .preview-ring::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        border: var(--border);
+      }
+
+      .preview-ring::before {
+        width: min(82%, 58vh);
+        aspect-ratio: 1;
+      }
+
+      .preview-ring::after {
+        width: min(58%, 41vh);
+        aspect-ratio: 1;
+        border-color: var(--retro-ui-secondary-color, var(--color-dark));
+      }
+
+      .preview-ring-symbols {
+        position: absolute;
+        width: min(72%, 51vh);
+        aspect-ratio: 1;
+        border-radius: 50%;
+        color: var(--retro-ring-symbol-color, var(--glyph-color));
+        animation: none;
+      }
+
+      .preview-ring-symbols span {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: rotate(var(--angle)) translateY(-47%) translateX(-50%);
+        transform-origin: 0 0;
+        font-size: clamp(10px, 1.5vw, 21px);
+      }
+
+      .preview-wormhole {
+        width: min(50%, 35vh);
+        aspect-ratio: 1;
+        border-radius: 50%;
+        border: var(--border-thin);
+        background:
+          radial-gradient(circle, rgba(120, 220, 255, 0.14), rgba(2, 15, 37, 0.1) 44%, transparent 64%),
+          rgba(2, 15, 37, 0.38);
+      }
+
+      .preview-boxes {
+        display: grid;
+        grid-template-rows: repeat(7, 1fr);
+        gap: 6%;
+      }
+
+      .preview-boxes span {
+        border: var(--border-thin);
+        color: var(--retro-dialed-symbol-color, var(--glyph-color));
+        font-size: clamp(16px, 2.7vw, 36px);
+      }
+
+      body.retro-glow-enabled .preview-boxes span {
+        text-shadow:
+          0 0 calc(var(--retro-preview-glow-soft, 0px)) var(--retro-glow-color),
+          0 0 calc(var(--retro-preview-glow-mid, 0px)) var(--retro-glow-color),
+          0 0 calc(var(--retro-preview-glow-wide, 0px)) var(--retro-glow-color);
+        filter:
+          drop-shadow(0 0 calc(var(--retro-preview-glow-soft, 0px)) var(--retro-glow-color))
+          drop-shadow(0 0 calc(var(--retro-preview-glow-mid, 0px)) var(--retro-glow-color));
+      }
+
+      .preview-status-line {
+        grid-column: 2 / 4;
+        border: var(--border-thin);
+        display: grid;
+        place-items: center;
+        color: #ff3158;
+        font-size: clamp(22px, 5vw, 72px);
+        letter-spacing: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="preview-shell">
+      <div class="preview-name">Land of Light</div>
+      <div class="preview-status">DESTINATION</div>
+      <div class="preview-keyboard">
+        <span>ᐃ</span><span>ᒥ</span><span>ᓚ</span><span>ᑯ</span>
+        <span>ᖇ</span><span>ᘯ</span><span>ᔕ</span><span>ᗱ</span>
+        <span>ᗧ</span><span>ᒧ</span><span>ᐊ</span><span>ᑎ</span>
+        <span>ᓄ</span><span>ᘛ</span><span>ᗩ</span><span>ᒪ</span>
+      </div>
+      <div class="preview-ring">
+        <div class="preview-ring-symbols" aria-hidden="true">
+          <span style="--angle: 0deg">ᐃ</span>
+          <span style="--angle: 40deg">ᒥ</span>
+          <span style="--angle: 80deg">ᓚ</span>
+          <span style="--angle: 120deg">ᑯ</span>
+          <span style="--angle: 160deg">ᖇ</span>
+          <span style="--angle: 200deg">ᘯ</span>
+          <span style="--angle: 240deg">ᔕ</span>
+          <span style="--angle: 280deg">ᗱ</span>
+          <span style="--angle: 320deg">ᗧ</span>
+        </div>
+        <div class="preview-wormhole"></div>
+      </div>
+      <div class="preview-boxes">
+        <span>ᐃ</span><span>ᒥ</span><span>ᓚ</span><span>ᑯ</span><span>ᖇ</span><span>ᘯ</span><span>ᔕ</span>
+      </div>
+      <div></div>
+      <div class="preview-status-line">IDLE</div>
+    </main>
+  </body>
+</html>

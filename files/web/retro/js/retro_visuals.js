@@ -10,6 +10,14 @@
     glow_enabled: false,
     glow_color: '#fffea5',
     glow_intensity: 12,
+    custom_colors_enabled: false,
+    dialed_symbol_color: '#fffea5',
+    ring_symbol_color: '#fffea5',
+    keyboard_symbol_color: '#fffea5',
+    gate_name_color: '#78dcff',
+    ui_line_color: '#37bfde',
+    ui_secondary_color: '#4a7297',
+    change_all_ui_colors: false,
   };
   let settings = {...defaults};
   let incomingSignature = '';
@@ -31,6 +39,7 @@
     [1080, 1920],
   ];
   const backgroundExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+  const isVisualPreview = new URLSearchParams(window.location.search).has('visual_preview');
 
   function imageExists(url) {
     return new Promise(resolve => {
@@ -225,10 +234,19 @@
     const body = document.body;
     root.style.setProperty('--retro-glow-color', settings.glow_color);
     root.style.setProperty('--retro-glow-strength', `${settings.glow_intensity}px`);
+    root.style.setProperty('--retro-dialed-symbol-color', settings.dialed_symbol_color);
+    root.style.setProperty('--retro-ring-symbol-color', settings.ring_symbol_color);
+    root.style.setProperty('--retro-keyboard-symbol-color', settings.keyboard_symbol_color);
+    root.style.setProperty('--retro-gate-name-color', settings.gate_name_color);
+    root.style.setProperty('--retro-ui-line-color', settings.ui_line_color);
+    root.style.setProperty('--retro-ui-secondary-color', settings.ui_secondary_color);
+    updateCustomColorStyle();
     updateSvgGlowFilter(settings);
     body.classList.toggle('retro-glow-enabled', Boolean(settings.glow_enabled));
     body.classList.toggle('retro-incoming-enhanced', settings.incoming_style === 'enhanced');
     body.classList.toggle('retro-incoming-symbols', Boolean(settings.incoming_symbols_in_boxes));
+    body.classList.toggle('retro-custom-colors', Boolean(settings.custom_colors_enabled));
+    body.classList.toggle('retro-custom-colors-all', Boolean(settings.change_all_ui_colors));
 
     const customBackground = settings.background_mode === 'custom' && settings.background_image;
     body.classList.toggle('retro-background-custom', Boolean(customBackground));
@@ -239,6 +257,32 @@
       applyBackgroundUrl('');
     }
     return settings;
+  }
+
+  function updateCustomColorStyle() {
+    let style = document.querySelector('#retro-custom-color-style');
+    if (!style) {
+      style = document.createElement('style');
+      style.id = 'retro-custom-color-style';
+      document.head.append(style);
+    }
+    style.textContent = `
+body.retro-custom-colors .gate.ring-3 svg .sg1-ring-glyph path,
+body.retro-custom-colors .gate.ring-3 svg .sg1-ring-glyph polygon,
+body.retro-custom-colors .gate.ring-3 svg .sg1-ring-glyph polyline,
+body.retro-custom-colors .gate.ring-3 svg .sg1-ring-glyph circle,
+body.retro-custom-colors .gate.ring-3 svg .sg1-ring-glyph ellipse,
+body.retro-custom-colors .gate.ring-3 svg .sg1-ring-glyph line,
+body.retro-custom-colors .gate.ring-3 svg .sg1-ring-glyph .fil0 {
+  fill: var(--retro-ring-symbol-color) !important;
+  stroke: var(--retro-ring-symbol-color) !important;
+}
+body.retro-custom-colors .gate.ring-3 svg .sg1-ring-glyph .fil1,
+body.retro-custom-colors .gate.ring-3 svg .sg1-ring-glyph [class~="fil1"],
+body.retro-custom-colors .gate.ring-3 svg .sg1-ring-glyph rect {
+  fill: transparent !important;
+  stroke: transparent !important;
+}`;
   }
 
   async function load() {
@@ -261,7 +305,13 @@
     originalFetch,
   };
 
-  if (document.readyState === 'loading') {
+  if (isVisualPreview) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => apply(defaults), {once: true});
+    } else {
+      apply(defaults);
+    }
+  } else if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', load, {once: true});
   } else {
     load();

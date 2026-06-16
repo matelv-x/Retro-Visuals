@@ -54,6 +54,13 @@ This lets a later reinstall reuse saved background settings and archives.
 
 ## Features
 
+### Preview
+
+<p>
+  <img src="docs/images/retro-visuals-custom-colors.jpg" alt="Retro Visuals custom colors on Retro dial screen" width="49%">
+  <img src="docs/images/retro-visuals-settings-preview.jpg" alt="Retro Visuals settings page with static preview" width="49%">
+</p>
+
 ### Custom Retro background
 
 - Keeps the original Retro background or uploads a custom PNG, JPEG, or WebP image.
@@ -81,6 +88,10 @@ This lets a later reinstall reuse saved background settings and archives.
   the active set with that archived set instead of regenerating it.
 - The Visuals page shows saved background previews, so a user can choose an
   already generated background set without uploading the image again.
+- The Visuals page uses a static preview window that is not connected to the
+  live Stargate status refresh loop. New uploaded backgrounds appear in the
+  preview before saving and are not overwritten by the currently active gate
+  background.
 - After saving Visuals settings, the page returns to Retro with a cache-busting
   refresh token so the selected background appears immediately.
 - Resolution-based background selection works only when matching files are
@@ -134,6 +145,26 @@ is filled without repeated tiles or colored side fill.
 - Provides a color picker and an intensity slider.
 - Applies glow as an SVG outline effect instead of filling the symbol box.
 - Normalizes the glow scale so all symbols behave visually like the Earth symbol.
+- The Visuals preview includes symbols in boxes so glow color and intensity can
+  be checked before saving.
+
+### Custom colors
+
+- Adds optional color controls for:
+  - dialed symbols in destination boxes
+  - ring symbols
+  - selection symbols in the left symbol picker
+  - gate name
+  - main UI lines
+  - secondary UI lines
+- Includes a `Restore original colors` button that returns the custom color
+  section to the original Retro-style defaults before saving.
+- By default, main and secondary UI line colors affect only the main Retro
+  window, leaving the top navigation menu untouched.
+- Includes an `Include top menu` checkbox for users who want the UI line colors
+  applied to the full Retro page including the top menu.
+- Uses a static full-window preview so color changes can be inspected before
+  saving without the live gate refresh loop changing the preview.
 
 ### Surgical overlay installer
 
@@ -166,6 +197,13 @@ older tag if you want the previous Custom Retro background behavior.
 - Adds numbered background-set archiving and restores an archived set when the
   same original image is uploaded again.
 - Adds saved background previews and selection in the Visuals page.
+- Replaces the live Visuals preview with a static preview that shows uploaded
+  backgrounds, box symbols, glow, ring symbol colors, selection symbol colors,
+  gate name color, and UI line colors before saving.
+- Adds optional custom color controls for dialed symbols, ring symbols,
+  selection symbols, gate name, main UI lines, and secondary UI lines.
+- Keeps top navigation menu colors unchanged unless `Include top menu` is
+  enabled.
 - Adds automatic cache-busting refresh after saving a background.
 - Keeps fallback behavior for gates that only have one uploaded custom
   background image.

@@ -9,10 +9,31 @@ const glowEnabled = document.querySelector('#glow-enabled');
 const glowColor = document.querySelector('#glow-color');
 const glowIntensity = document.querySelector('#glow-intensity');
 const glowIntensityValue = document.querySelector('#glow-intensity-value');
+const customColorsEnabled = document.querySelector('#custom-colors-enabled');
+const dialedSymbolColor = document.querySelector('#dialed-symbol-color');
+const ringSymbolColor = document.querySelector('#ring-symbol-color');
+const keyboardSymbolColor = document.querySelector('#keyboard-symbol-color');
+const gateNameColor = document.querySelector('#gate-name-color');
+const uiLineColor = document.querySelector('#ui-line-color');
+const uiSecondaryColor = document.querySelector('#ui-secondary-color');
+const changeAllUiColors = document.querySelector('#change-all-ui-colors');
+const restoreOriginalColors = document.querySelector('#restore-original-colors');
 const preview = document.querySelector('.visual-preview');
+const previewFrame = document.querySelector('#visual-preview-frame');
 const message = document.querySelector('.visual-message');
 let uploadedBackground = '';
 let storedSettings = {};
+
+const originalColors = {
+  custom_colors_enabled: false,
+  dialed_symbol_color: '#fffea5',
+  ring_symbol_color: '#fffea5',
+  keyboard_symbol_color: '#fffea5',
+  gate_name_color: '#78dcff',
+  ui_line_color: '#37bfde',
+  ui_secondary_color: '#4a7297',
+  change_all_ui_colors: false,
+};
 
 function refreshRetroAfterSave() {
   const token = Date.now().toString();
@@ -56,8 +77,8 @@ function renderSavedBackgrounds(settings) {
       backgroundFile.value = '';
       backgroundMode.value = 'custom';
       savedBackground.value = archive.id;
-      preview.style.backgroundImage = `url("${archive.preview}")`;
       renderSavedBackgroundSelection();
+      renderPreview();
     });
     savedBackgroundPreview.append(button);
   });
@@ -71,13 +92,97 @@ function renderSavedBackgroundSelection() {
   });
 }
 
+function selectedArchivePreview() {
+  if (!savedBackground.value) return '';
+  const archive = (storedSettings.background_archives || [])
+    .find(item => item.id === savedBackground.value);
+  return archive?.preview || '';
+}
+
+function draftSettings() {
+  return {
+    ...storedSettings,
+    background_mode: backgroundMode.value,
+    incoming_style: incomingStyle.value,
+    incoming_symbols_in_boxes: incomingSymbolsInBoxes.checked,
+    glow_enabled: glowEnabled.checked,
+    glow_color: glowColor.value,
+    glow_intensity: Number(glowIntensity.value),
+    custom_colors_enabled: customColorsEnabled.checked,
+    dialed_symbol_color: dialedSymbolColor.value,
+    ring_symbol_color: ringSymbolColor.value,
+    keyboard_symbol_color: keyboardSymbolColor.value,
+    gate_name_color: gateNameColor.value,
+    ui_line_color: uiLineColor.value,
+    ui_secondary_color: uiSecondaryColor.value,
+    change_all_ui_colors: changeAllUiColors.checked,
+  };
+}
+
+function applyPreviewBackground(frameDocument, draft) {
+  const customBackground = draft.background_mode === 'custom';
+  const body = frameDocument.body;
+  const root = frameDocument.documentElement;
+  let previewUrl = '';
+
+  if (customBackground && uploadedBackground) {
+    previewUrl = uploadedBackground;
+  } else if (customBackground && selectedArchivePreview()) {
+    previewUrl = selectedArchivePreview();
+  } else if (customBackground && draft.background_image) {
+    const version = Number(draft.background_version) || 0;
+    previewUrl = `/retro/images/${encodeURIComponent(draft.background_image)}`;
+    if (version) previewUrl += `?v=${version}`;
+  }
+
+  if (previewUrl) {
+    root.style.setProperty('--retro-custom-background', `url("${previewUrl}")`);
+    body.classList.add('retro-background-custom');
+  } else if (!customBackground) {
+    root.style.setProperty('--retro-custom-background', 'none');
+    body.classList.remove('retro-background-custom');
+  }
+}
+
 function renderPreview() {
   glowIntensityValue.value = glowIntensity.value;
-  document.documentElement.style.setProperty('--retro-glow-color', glowColor.value);
-  document.documentElement.style.setProperty('--retro-glow-strength', `${glowIntensity.value}px`);
-  preview.querySelector('.visual-preview-symbol').style.textShadow = glowEnabled.checked
-    ? `0 0 ${Math.max(2, Number(glowIntensity.value) * 0.4)}px ${glowColor.value}, 0 0 ${glowIntensity.value}px ${glowColor.value}`
-    : 'none';
+  const draft = draftSettings();
+  const glow = Math.max(0, Math.min(80, Number(draft.glow_intensity) || 0));
+  const glowSoft = glow <= 0 ? 0 : 1.5 + glow * 0.06;
+  const glowMid = glow <= 0 ? 0 : 3 + glow * 0.18;
+  const glowWide = glow <= 0 ? 0 : 6 + glow * 0.38;
+  document.documentElement.style.setProperty('--retro-glow-color', draft.glow_color);
+  document.documentElement.style.setProperty('--retro-glow-strength', `${draft.glow_intensity}px`);
+  document.documentElement.style.setProperty('--retro-dialed-symbol-color', draft.dialed_symbol_color);
+  document.documentElement.style.setProperty('--retro-ring-symbol-color', draft.ring_symbol_color);
+  document.documentElement.style.setProperty('--retro-keyboard-symbol-color', draft.keyboard_symbol_color);
+  document.documentElement.style.setProperty('--retro-gate-name-color', draft.gate_name_color);
+  document.documentElement.style.setProperty('--retro-ui-line-color', draft.ui_line_color);
+  document.documentElement.style.setProperty('--retro-ui-secondary-color', draft.ui_secondary_color);
+  preview.style.borderColor = draft.custom_colors_enabled ? draft.ui_line_color : '';
+
+  const frameDocument = previewFrame.contentDocument;
+  if (!frameDocument?.body) return;
+
+  const frameRoot = frameDocument.documentElement;
+  const frameBody = frameDocument.body;
+  frameRoot.style.setProperty('--retro-glow-color', draft.glow_color);
+  frameRoot.style.setProperty('--retro-glow-strength', `${draft.glow_intensity}px`);
+  frameRoot.style.setProperty('--retro-preview-glow-soft', `${glowSoft.toFixed(1)}px`);
+  frameRoot.style.setProperty('--retro-preview-glow-mid', `${glowMid.toFixed(1)}px`);
+  frameRoot.style.setProperty('--retro-preview-glow-wide', `${glowWide.toFixed(1)}px`);
+  frameRoot.style.setProperty('--retro-dialed-symbol-color', draft.dialed_symbol_color);
+  frameRoot.style.setProperty('--retro-ring-symbol-color', draft.ring_symbol_color);
+  frameRoot.style.setProperty('--retro-keyboard-symbol-color', draft.keyboard_symbol_color);
+  frameRoot.style.setProperty('--retro-gate-name-color', draft.gate_name_color);
+  frameRoot.style.setProperty('--retro-ui-line-color', draft.ui_line_color);
+  frameRoot.style.setProperty('--retro-ui-secondary-color', draft.ui_secondary_color);
+  frameBody.classList.toggle('retro-glow-enabled', Boolean(draft.glow_enabled));
+  frameBody.classList.toggle('retro-custom-colors', Boolean(draft.custom_colors_enabled));
+  frameBody.classList.toggle('retro-custom-colors-all', Boolean(draft.change_all_ui_colors));
+  frameBody.style.setProperty('--color', draft.custom_colors_enabled ? draft.ui_line_color : '');
+  frameBody.style.setProperty('--color-dark', draft.custom_colors_enabled ? draft.ui_secondary_color : '');
+  applyPreviewBackground(frameDocument, draft);
 }
 
 function setForm(settings) {
@@ -88,6 +193,14 @@ function setForm(settings) {
   glowEnabled.checked = Boolean(settings.glow_enabled);
   glowColor.value = settings.glow_color || '#fffea5';
   glowIntensity.value = settings.glow_intensity ?? 12;
+  customColorsEnabled.checked = Boolean(settings.custom_colors_enabled);
+  dialedSymbolColor.value = settings.dialed_symbol_color || '#fffea5';
+  ringSymbolColor.value = settings.ring_symbol_color || '#fffea5';
+  keyboardSymbolColor.value = settings.keyboard_symbol_color || '#fffea5';
+  gateNameColor.value = settings.gate_name_color || '#78dcff';
+  uiLineColor.value = settings.ui_line_color || '#37bfde';
+  uiSecondaryColor.value = settings.ui_secondary_color || '#4a7297';
+  changeAllUiColors.checked = Boolean(settings.change_all_ui_colors);
   renderSavedBackgrounds(settings);
   renderPreview();
 }
@@ -109,10 +222,10 @@ backgroundFile.addEventListener('change', () => {
   const reader = new FileReader();
   reader.addEventListener('load', () => {
     uploadedBackground = reader.result;
-    preview.style.backgroundImage = `url("${reader.result}")`;
     backgroundMode.value = 'custom';
     savedBackground.value = '';
     renderSavedBackgroundSelection();
+    renderPreview();
   });
   reader.readAsDataURL(file);
 });
@@ -125,14 +238,29 @@ backgroundFile.addEventListener('change', () => {
       .find(item => item.id === savedBackground.value);
     if (archive) {
       backgroundMode.value = 'custom';
-      preview.style.backgroundImage = `url("${archive.preview}")`;
     }
     renderSavedBackgroundSelection();
+    renderPreview();
   });
 });
 
-[glowEnabled, glowColor, glowIntensity].forEach(control => {
+[backgroundMode, incomingStyle, incomingSymbolsInBoxes, glowEnabled, glowColor, glowIntensity, customColorsEnabled, dialedSymbolColor, ringSymbolColor, keyboardSymbolColor, gateNameColor, uiLineColor, uiSecondaryColor, changeAllUiColors].forEach(control => {
   control.addEventListener('input', renderPreview);
+});
+
+previewFrame.addEventListener('load', renderPreview);
+
+restoreOriginalColors.addEventListener('click', () => {
+  customColorsEnabled.checked = originalColors.custom_colors_enabled;
+  dialedSymbolColor.value = originalColors.dialed_symbol_color;
+  ringSymbolColor.value = originalColors.ring_symbol_color;
+  keyboardSymbolColor.value = originalColors.keyboard_symbol_color;
+  gateNameColor.value = originalColors.gate_name_color;
+  uiLineColor.value = originalColors.ui_line_color;
+  uiSecondaryColor.value = originalColors.ui_secondary_color;
+  changeAllUiColors.checked = originalColors.change_all_ui_colors;
+  renderPreview();
+  message.textContent = 'Original colors restored. Press Save to apply.';
 });
 
 form.addEventListener('submit', async event => {
@@ -145,6 +273,14 @@ form.addEventListener('submit', async event => {
     glow_enabled: glowEnabled.checked,
     glow_color: glowColor.value,
     glow_intensity: Number(glowIntensity.value),
+    custom_colors_enabled: customColorsEnabled.checked,
+    dialed_symbol_color: dialedSymbolColor.value,
+    ring_symbol_color: ringSymbolColor.value,
+    keyboard_symbol_color: keyboardSymbolColor.value,
+    gate_name_color: gateNameColor.value,
+    ui_line_color: uiLineColor.value,
+    ui_secondary_color: uiSecondaryColor.value,
+    change_all_ui_colors: changeAllUiColors.checked,
   };
   if (uploadedBackground) payload.background_data = uploadedBackground;
   if (!uploadedBackground && savedBackground.value) {
@@ -160,9 +296,9 @@ form.addEventListener('submit', async event => {
   if (!response.ok || !result.success) {
     throw new Error(result.message || `HTTP ${response.status}`);
   }
-  uploadedBackground = '';
-  setForm(result);
-  window.retroVisuals.apply(result);
+    uploadedBackground = '';
+    setForm(result);
+    window.retroVisuals.apply(result);
   message.textContent = 'Settings saved.';
   setTimeout(refreshRetroAfterSave, 250);
 });

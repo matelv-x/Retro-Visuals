@@ -21,11 +21,11 @@
               <option value="custom">Custom image</option>
             </select>
           </div>
-          <div class="visual-field">
+          <div class="visual-field visual-field-wide">
             <label for="background-file">Custom image</label>
             <input id="background-file" type="file" accept="image/png,image/jpeg,image/webp" />
           </div>
-          <div class="visual-field">
+          <div class="visual-field visual-field-hidden">
             <label for="saved-background">Saved backgrounds</label>
             <select id="saved-background">
               <option value="">Upload or current</option>
@@ -64,13 +64,54 @@
               <output id="glow-intensity-value">12</output>
             </div>
           </div>
+          <div class="visual-field">
+            <span class="visual-label">Custom colors</span>
+            <label class="visual-inline">
+              <input id="custom-colors-enabled" type="checkbox" />
+              <span>Enabled</span>
+            </label>
+          </div>
+          <div class="visual-field">
+            <label for="dialed-symbol-color">Dialed symbols</label>
+            <input id="dialed-symbol-color" type="color" value="#fffea5" />
+          </div>
+          <div class="visual-field">
+            <label for="ring-symbol-color">Ring symbols</label>
+            <input id="ring-symbol-color" type="color" value="#fffea5" />
+          </div>
+          <div class="visual-field">
+            <label for="keyboard-symbol-color">Selection symbols</label>
+            <input id="keyboard-symbol-color" type="color" value="#fffea5" />
+          </div>
+          <div class="visual-field">
+            <label for="gate-name-color">Gate name</label>
+            <input id="gate-name-color" type="color" value="#78dcff" />
+          </div>
+          <div class="visual-field">
+            <label for="ui-line-color">Main UI lines</label>
+            <input id="ui-line-color" type="color" value="#37bfde" />
+          </div>
+          <div class="visual-field">
+            <label for="ui-secondary-color">Secondary UI lines</label>
+            <input id="ui-secondary-color" type="color" value="#4a7297" />
+          </div>
+          <div class="visual-field">
+            <span class="visual-label">Change all UI</span>
+            <label class="visual-inline">
+              <input id="change-all-ui-colors" type="checkbox" />
+              <span>Include top menu</span>
+            </label>
+          </div>
+          <div class="visual-actions visual-actions-secondary">
+            <button id="restore-original-colors" type="button">Restore original colors</button>
+          </div>
           <div class="visual-actions">
             <button type="submit">Save</button>
           </div>
           <div class="visual-message" role="status"></div>
         </form>
         <section class="visual-preview">
-          <div class="visual-preview-symbol">⌾</div>
+          <iframe id="visual-preview-frame" title="Retro preview" src="visual_preview.html"></iframe>
         </section>
       </div>
     </main>

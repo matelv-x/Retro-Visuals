@@ -2,6 +2,12 @@
   --retro-custom-background: none;
   --retro-glow-color: #fffea5;
   --retro-glow-strength: 12px;
+  --retro-dialed-symbol-color: #fffea5;
+  --retro-ring-symbol-color: #fffea5;
+  --retro-keyboard-symbol-color: #fffea5;
+  --retro-gate-name-color: #78dcff;
+  --retro-ui-line-color: #37bfde;
+  --retro-ui-secondary-color: #4a7297;
 }
 
 body.retro-background-custom {
@@ -38,4 +44,57 @@ body.retro-incoming-symbols .border.gdo-valid .chevron-box.locked.incoming {
 
 body.retro-incoming-enhanced .dial-append .chevron-link.locked path {
   stroke: var(--color-good, #07ff0b);
+}
+
+body.retro-custom-colors.retro-custom-colors-all {
+  --color: var(--retro-ui-line-color);
+  --color-dark: var(--retro-ui-secondary-color);
+  --border: solid clamp(0px, 0.5vmin, 5px) var(--retro-ui-line-color);
+  --border-thin: solid clamp(0px, 0.3vmin, 3px) var(--retro-ui-line-color);
+}
+
+body.retro-custom-colors:not(.retro-custom-colors-all) .border,
+body.retro-custom-colors:not(.retro-custom-colors-all) .visual-settings,
+body.retro-custom-colors:not(.retro-custom-colors-all) .preview-shell {
+  --color: var(--retro-ui-line-color);
+  --color-dark: var(--retro-ui-secondary-color);
+  --border: solid clamp(0px, 0.5vmin, 5px) var(--retro-ui-line-color);
+  --border-thin: solid clamp(0px, 0.3vmin, 3px) var(--retro-ui-line-color);
+}
+
+body.retro-custom-colors .gate-name {
+  border-color: var(--retro-ui-secondary-color) !important;
+  color: var(--retro-gate-name-color) !important;
+}
+
+body.retro-custom-colors .dial-append div.glyph.locked:not(.blur) svg,
+body.retro-custom-colors .destination-glyphs svg {
+  color: var(--retro-dialed-symbol-color);
+}
+
+body.retro-custom-colors .dial-append div.glyph.locked:not(.blur) svg path:not(.fil1),
+body.retro-custom-colors .destination-glyphs svg path:not(.fil1) {
+  fill: var(--retro-dialed-symbol-color) !important;
+}
+
+body.retro-custom-colors .dial-append div.glyph.locked:not(.blur) svg ellipse:first-of-type,
+body.retro-custom-colors .destination-glyphs svg ellipse:first-of-type {
+  stroke: var(--retro-dialed-symbol-color) !important;
+}
+
+body.retro-custom-colors .dial-append div.glyph.locked:not(.blur) svg ellipse:nth-of-type(2),
+body.retro-custom-colors .destination-glyphs svg ellipse:nth-of-type(2) {
+  fill: var(--retro-dialed-symbol-color) !important;
+}
+
+body.retro-custom-colors .sidebar .keyboard div svg path:not(.fil1) {
+  fill: var(--retro-keyboard-symbol-color) !important;
+}
+
+body.retro-custom-colors .sidebar .keyboard div svg ellipse:first-of-type {
+  stroke: var(--retro-keyboard-symbol-color) !important;
+}
+
+body.retro-custom-colors .sidebar .keyboard div svg ellipse:nth-of-type(2) {
+  fill: var(--retro-keyboard-symbol-color) !important;
 }

@@ -15,6 +15,7 @@ OWNED_FILES = (
     "web/retro/css/visual_settings.css",
     "web/retro/js/retro_visuals.js",
     "web/retro/js/visual_settings.js",
+    "web/retro/visual_preview.html",
     "web/retro/visual_settings.html",
 )
 PATCHED_FILES = (
@@ -250,7 +251,15 @@ def patch_web_server(path):
             "incoming_symbols_in_boxes": False,
             "glow_enabled": False,
             "glow_color": "#fffea5",
-            "glow_intensity": 12
+            "glow_intensity": 12,
+            "custom_colors_enabled": False,
+            "dialed_symbol_color": "#fffea5",
+            "ring_symbol_color": "#fffea5",
+            "keyboard_symbol_color": "#fffea5",
+            "gate_name_color": "#78dcff",
+            "ui_line_color": "#37bfde",
+            "ui_secondary_color": "#4a7297",
+            "change_all_ui_colors": False
         }
         config_path = Path(__file__).resolve().parent.parent / "config" / "retro-visuals.json"
         try:
@@ -325,6 +334,24 @@ def patch_web_server(path):
         glow_color = updates.get("glow_color", config["glow_color"])
         glow_enabled = updates.get("glow_enabled", config["glow_enabled"])
         glow_intensity = updates.get("glow_intensity", config["glow_intensity"])
+        custom_colors_enabled = updates.get(
+            "custom_colors_enabled", config["custom_colors_enabled"]
+        )
+        dialed_symbol_color = updates.get(
+            "dialed_symbol_color", config["dialed_symbol_color"]
+        )
+        ring_symbol_color = updates.get("ring_symbol_color", config["ring_symbol_color"])
+        keyboard_symbol_color = updates.get(
+            "keyboard_symbol_color", config["keyboard_symbol_color"]
+        )
+        gate_name_color = updates.get("gate_name_color", config["gate_name_color"])
+        ui_line_color = updates.get("ui_line_color", config["ui_line_color"])
+        ui_secondary_color = updates.get(
+            "ui_secondary_color", config["ui_secondary_color"]
+        )
+        change_all_ui_colors = updates.get(
+            "change_all_ui_colors", config["change_all_ui_colors"]
+        )
         background_archive = updates.get("background_archive", "")
 
         if background_mode not in ("default", "custom"):
@@ -337,6 +364,20 @@ def patch_web_server(path):
             raise ValueError("Glow color must use #RRGGBB format.")
         if not isinstance(glow_enabled, bool):
             raise ValueError("Glow enabled must be true or false.")
+        if not isinstance(custom_colors_enabled, bool):
+            raise ValueError("Custom colors enabled must be true or false.")
+        if not isinstance(change_all_ui_colors, bool):
+            raise ValueError("Change all UI colors must be true or false.")
+        for label, color in (
+            ("Dialed symbol color", dialed_symbol_color),
+            ("Ring symbol color", ring_symbol_color),
+            ("Selection symbol color", keyboard_symbol_color),
+            ("Gate name color", gate_name_color),
+            ("Main UI line color", ui_line_color),
+            ("Secondary UI line color", ui_secondary_color),
+        ):
+            if not isinstance(color, str) or not re.fullmatch(r"#[0-9a-fA-F]{6}", color):
+                raise ValueError(f"{label} must use #RRGGBB format.")
         try:
             glow_intensity = max(0, min(80, int(glow_intensity)))
         except (TypeError, ValueError):
@@ -544,7 +585,15 @@ def patch_web_server(path):
             "incoming_symbols_in_boxes": incoming_symbols_in_boxes,
             "glow_enabled": glow_enabled,
             "glow_color": glow_color.lower(),
-            "glow_intensity": glow_intensity
+            "glow_intensity": glow_intensity,
+            "custom_colors_enabled": custom_colors_enabled,
+            "dialed_symbol_color": dialed_symbol_color.lower(),
+            "ring_symbol_color": ring_symbol_color.lower(),
+            "keyboard_symbol_color": keyboard_symbol_color.lower(),
+            "gate_name_color": gate_name_color.lower(),
+            "ui_line_color": ui_line_color.lower(),
+            "ui_secondary_color": ui_secondary_color.lower(),
+            "change_all_ui_colors": change_all_ui_colors
         })
         config_path = app_dir / "config" / "retro-visuals.json"
         config_path.write_text(json.dumps(config, indent=2) + chr(10), encoding="utf-8")
