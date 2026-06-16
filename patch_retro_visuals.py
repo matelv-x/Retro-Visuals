@@ -133,17 +133,32 @@ def patch_dial(path):
         "  if (bufferIndex < 9 && shouldDisplayIncomingGlyphs()) {\n",
         1,
     )
-    old = """      setTimeout(() => newGlyph.classList.add('locked'), 1);
-      setTimeout(() => newGlyph2.classList.add('locked'), 50);"""
-    new = """      // RETRO_VISUALS_INCOMING_GLYPH_DELAY
+    lock_variants = (
+        (
+            """      setTimeout(() => newGlyph.classList.add('locked'), 1);
+      setTimeout(() => newGlyph2.classList.add('locked'), 50);""",
+            "newGlyph.classList.add('locked')",
+            "newGlyph2.classList.add('locked')",
+        ),
+        (
+            """      setTimeout(() => lockGlyphInBox(newGlyph), 1);
+      setTimeout(() => lockGlyphInBox(newGlyph2), 50);""",
+            "lockGlyphInBox(newGlyph)",
+            "lockGlyphInBox(newGlyph2)",
+        ),
+    )
+    if "RETRO_VISUALS_INCOMING_GLYPH_DELAY" not in text:
+        for old, lock_one, lock_two in lock_variants:
+            if old in text:
+                new = f"""      // RETRO_VISUALS_INCOMING_GLYPH_DELAY
       const glyphLockDelay =
         gateStatus.address_buffer_incoming.length > 0 ? 700 : 1;
-      setTimeout(() => newGlyph.classList.add('locked'), glyphLockDelay);
-      setTimeout(() => newGlyph2.classList.add('locked'), glyphLockDelay + 50);"""
-    if "RETRO_VISUALS_INCOMING_GLYPH_DELAY" not in text:
-        if old not in text:
+      setTimeout(() => {lock_one}, glyphLockDelay);
+      setTimeout(() => {lock_two}, glyphLockDelay + 50);"""
+                text = text.replace(old, new, 1)
+                break
+        else:
             fail("Unable to add incoming glyph animation delay to dial.js")
-        text = text.replace(old, new, 1)
     write_if_changed(path, text)
 
 
@@ -617,15 +632,28 @@ def restore(app):
             "  if (bufferIndex < 9) {\n",
             1,
         )
-        text = text.replace(
-            """      // RETRO_VISUALS_INCOMING_GLYPH_DELAY
+        delay_variants = (
+            (
+                """      // RETRO_VISUALS_INCOMING_GLYPH_DELAY
       const glyphLockDelay =
         gateStatus.address_buffer_incoming.length > 0 ? 700 : 1;
       setTimeout(() => newGlyph.classList.add('locked'), glyphLockDelay);
       setTimeout(() => newGlyph2.classList.add('locked'), glyphLockDelay + 50);""",
-            """      setTimeout(() => newGlyph.classList.add('locked'), 1);
+                """      setTimeout(() => newGlyph.classList.add('locked'), 1);
       setTimeout(() => newGlyph2.classList.add('locked'), 50);""",
+            ),
+            (
+                """      // RETRO_VISUALS_INCOMING_GLYPH_DELAY
+      const glyphLockDelay =
+        gateStatus.address_buffer_incoming.length > 0 ? 700 : 1;
+      setTimeout(() => lockGlyphInBox(newGlyph), glyphLockDelay);
+      setTimeout(() => lockGlyphInBox(newGlyph2), glyphLockDelay + 50);""",
+                """      setTimeout(() => lockGlyphInBox(newGlyph), 1);
+      setTimeout(() => lockGlyphInBox(newGlyph2), 50);""",
+            ),
         )
+        for patched, original in delay_variants:
+            text = text.replace(patched, original)
         dial.write_text(text, encoding="utf-8")
         print(f"Cleaned: {dial}")
 
