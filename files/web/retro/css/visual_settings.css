@@ -1,9 +1,12 @@
 .visual-settings {
-  width: min(920px, calc(100vw - 32px));
-  margin: 52px auto 24px;
+  box-sizing: border-box;
+  width: min(920px, calc(100vw - 16px));
+  max-height: calc(100vh - 16px);
+  margin: 8px auto;
   border: var(--border);
   background: rgba(2, 15, 37, 0.94);
-  padding: 20px;
+  padding: clamp(10px, 2vw, 20px);
+  overflow: auto;
 }
 
 .visual-settings h1 {
@@ -15,8 +18,8 @@
 
 .visual-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(260px, 360px);
-  gap: 22px;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 340px);
+  gap: clamp(12px, 2vw, 22px);
 }
 
 .visual-form {
@@ -86,7 +89,7 @@
 }
 
 .visual-preview {
-  min-height: 290px;
+  min-height: clamp(150px, 34vh, 290px);
   border: var(--border-thin);
   background-color: var(--background-color);
   background-image: var(--retro-custom-background);
@@ -127,5 +130,34 @@
 @media (max-width: 720px) {
   .visual-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-height: 620px), (max-width: 760px) {
+  .visual-settings {
+    margin: 4px auto;
+    width: calc(100vw - 8px);
+    max-height: calc(100vh - 8px);
+  }
+
+  .visual-settings h1 {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+
+  .visual-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .visual-form {
+    gap: 10px;
+  }
+
+  .visual-preview {
+    min-height: 120px;
+  }
+
+  .visual-preview-symbol {
+    font-size: 64px;
   }
 }
