@@ -72,6 +72,49 @@
   font-size: 12px;
 }
 
+.visual-file-control {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+}
+
+.visual-file-control input[type="file"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.visual-file-button {
+  min-height: 36px;
+  border: var(--border-thin);
+  border-radius: 4px;
+  background: var(--background-color);
+  color: var(--color-alt);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+.visual-file-button:hover {
+  background: var(--color-dark);
+}
+
+.visual-file-name {
+  color: var(--color-alt);
+  font-size: 13px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .visual-background-list {
   grid-column: 1 / -1;
   display: grid;

@@ -1,6 +1,7 @@
 const form = document.querySelector('#retro-visuals-form');
 const backgroundMode = document.querySelector('#background-mode');
 const backgroundFile = document.querySelector('#background-file');
+const backgroundFileName = document.querySelector('#background-file-name');
 const savedBackground = document.querySelector('#saved-background');
 const savedBackgroundPreview = document.querySelector('#saved-background-preview');
 const incomingStyle = document.querySelector('#incoming-style');
@@ -75,6 +76,7 @@ function renderSavedBackgrounds(settings) {
     button.addEventListener('click', () => {
       uploadedBackground = '';
       backgroundFile.value = '';
+      backgroundFileName.textContent = 'No file selected';
       backgroundMode.value = 'custom';
       savedBackground.value = archive.id;
       renderSavedBackgroundSelection();
@@ -214,11 +216,13 @@ async function loadSettings() {
 backgroundFile.addEventListener('change', () => {
   const [file] = backgroundFile.files;
   if (!file) return;
-  if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
+  if (!file.type.startsWith('image/')) {
     message.textContent = 'Select a PNG, JPEG or WEBP image.';
     backgroundFile.value = '';
+    backgroundFileName.textContent = 'No file selected';
     return;
   }
+  backgroundFileName.textContent = file.name || 'Selected image';
   const reader = new FileReader();
   reader.addEventListener('load', () => {
     uploadedBackground = reader.result;
@@ -234,6 +238,7 @@ backgroundFile.addEventListener('change', () => {
   control.addEventListener('input', () => {
     uploadedBackground = '';
     backgroundFile.value = '';
+    backgroundFileName.textContent = 'No file selected';
     const archive = (storedSettings.background_archives || [])
       .find(item => item.id === savedBackground.value);
     if (archive) {

@@ -64,6 +64,8 @@ This lets a later reinstall reuse saved background settings and archives.
 ### Custom Retro background
 
 - Keeps the original Retro background or uploads a custom PNG, JPEG, or WebP image.
+- Uses a touch-friendly `Choose image` control for Android tablets and other
+  mobile browsers.
 - Stores the uploaded image inside the existing Retro image folder.
 - Preserves the selected background between service restarts.
 - Displays the custom Retro background as one scalable image fitted to the
