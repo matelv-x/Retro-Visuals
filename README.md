@@ -2,7 +2,7 @@
 
 [![Downloads](https://img.shields.io/github/downloads/matelv-x/Retro-Visuals/total?label=downloads)](https://github.com/matelv-x/Retro-Visuals/releases)
 
-Optional visual settings overlay for the Retro web interface.
+Optional, visual settings overlay for the Retro web interface.
 
 ## Requirements
 
