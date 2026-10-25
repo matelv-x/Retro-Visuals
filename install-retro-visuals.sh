@@ -32,7 +32,9 @@ fi
 
 python3 "$SCRIPT_DIR/patch_retro_visuals.py" install "$APP_DIR" "$SCRIPT_DIR/files"
 
-if command -v systemctl >/dev/null 2>&1; then
+if [ "${STARGATE_ADDON_NO_RESTART:-0}" = "1" ]; then
+  echo "Stargate restart deferred by add-on manager."
+elif command -v systemctl >/dev/null 2>&1; then
   systemctl restart stargate.service || true
 fi
 

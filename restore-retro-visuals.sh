@@ -13,9 +13,15 @@ if [ "$(id -u)" -ne 0 ]; then
   exec sudo APP_DIR="$APP_DIR" bash "$0"
 fi
 
-systemctl stop stargate.service || true
+if [ "${STARGATE_ADDON_NO_RESTART:-0}" != "1" ]; then
+  systemctl stop stargate.service || true
+fi
 python3 "$SCRIPT_DIR/patch_retro_visuals.py" restore "$APP_DIR" "$SCRIPT_DIR/files"
-systemctl start stargate.service || true
+if [ "${STARGATE_ADDON_NO_RESTART:-0}" != "1" ]; then
+  systemctl start stargate.service || true
+else
+  echo "Stargate restart deferred by add-on manager."
+fi
 
 echo "=== RETRO VISUALS RESTORE COMPLETE ==="
 
