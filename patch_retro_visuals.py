@@ -636,23 +636,33 @@ def install(app, files):
 
 
 def restore(app):
-    navigation = app / "web/retro/js/navigation.js"
-    if navigation.exists():
+    def clean_navigation(navigation):
+        if not navigation.exists():
+            return
         text = navigation.read_text(encoding="utf-8")
         text = re.sub(
             r"(^|\n)[ \t]*import\s+['\"]\./retro_visuals\.js(?:\?[^'\"]*)?['\"]\s*;",
             r"\1",
             text,
-            count=1,
+            count=0,
         )
         text = re.sub(
             r"(^|\n)[ \t]*<a \$\{isActive\('/retro/visual_settings\.html'\)\}>Visuals</a>",
             r"\1",
             text,
-            count=1,
+            count=0,
         )
-        navigation.write_text(text, encoding="utf-8")
-        print(f"Cleaned: {navigation}")
+        original = navigation.read_text(encoding="utf-8")
+        if text != original:
+            navigation.write_text(text, encoding="utf-8")
+            print(f"Cleaned: {navigation}")
+
+    for navigation in (
+        app / "web/retro/js/navigation.js",
+        app / "web/.stellar-archive-addon/managed/retro-navigation.js",
+        app / "web/.stellar-archive-addon/originals/retro-navigation.js",
+    ):
+        clean_navigation(navigation)
 
     dial = app / "web/retro/js/dial.js"
     if dial.exists():

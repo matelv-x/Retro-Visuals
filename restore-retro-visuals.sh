@@ -10,7 +10,7 @@ if [ ! -d "$APP_DIR" ]; then
 fi
 
 if [ "$(id -u)" -ne 0 ]; then
-  exec sudo APP_DIR="$APP_DIR" bash "$0"
+  exec sudo APP_DIR="$APP_DIR" STARGATE_ADDON_NO_RESTART="${STARGATE_ADDON_NO_RESTART:-0}" bash "$0"
 fi
 
 if [ "${STARGATE_ADDON_NO_RESTART:-0}" != "1" ]; then

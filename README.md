@@ -44,7 +44,10 @@ sudo ./restore-retro-visuals.sh
 ```
 
 Restore removes the Retro Visuals menu link, injected JavaScript/CSS hooks,
-backend endpoints, and Retro Visuals overlay files. It preserves user data:
+backend endpoints, and Retro Visuals overlay files. The menu link is removed
+from the active Retro navigation and from Stellar Archive's managed and
+full-restore snapshots, preventing it from returning after an Archive update.
+It preserves user data:
 
 ```text
 /home/pi/sg1_v4/config/retro-visuals.json
