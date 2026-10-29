@@ -1,5 +1,6 @@
 {
   "maintenance_contract": 1,
+  "uninstall_contract": 2,
   "id": "retro-visuals",
   "name": "Retro Visuals",
   "repository": "matelv-x/Retro-Visuals",
