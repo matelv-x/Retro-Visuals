@@ -640,14 +640,14 @@ def restore(app):
     if navigation.exists():
         text = navigation.read_text(encoding="utf-8")
         text = re.sub(
-            r"\n\s*import\s+['\"]\./retro_visuals\.js(?:\?[^'\"]*)?['\"]\s*;",
-            "",
+            r"(^|\n)[ \t]*import\s+['\"]\./retro_visuals\.js(?:\?[^'\"]*)?['\"]\s*;",
+            r"\1",
             text,
             count=1,
         )
         text = re.sub(
-            r"\n\s*<a \$\{isActive\('/retro/visual_settings\.html'\)\}>Visuals</a>",
-            "",
+            r"(^|\n)[ \t]*<a \$\{isActive\('/retro/visual_settings\.html'\)\}>Visuals</a>",
+            r"\1",
             text,
             count=1,
         )
