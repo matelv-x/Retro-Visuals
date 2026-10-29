@@ -16,6 +16,12 @@ import './retro_visuals.js';import { config } from './config.js';
 JS
 cp "$TARGET/web/retro/js/navigation.js" "$TARGET/web/.stellar-archive-addon/managed/retro-navigation.js"
 cp "$TARGET/web/retro/js/navigation.js" "$TARGET/web/.stellar-archive-addon/originals/retro-navigation.js"
+cat > "$TARGET/web/.stellar-archive-addon/originals/retro-address_book.html" <<'HTML'
+<link rel="stylesheet" href="css/retro_visuals.css" />
+<main>Address Book</main>
+<script src="js/retro_visuals.js"></script>
+HTML
+cp "$TARGET/web/.stellar-archive-addon/originals/retro-address_book.html" "$TARGET/web/.stellar-archive-addon/managed/retro-address_book.html"
 
 python3 "$ROOT/patch_retro_visuals.py" restore "$TARGET" "$ROOT/files"
 

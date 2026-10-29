@@ -31,6 +31,8 @@ RETRO_VISUAL_PAGES = (
     "web/retro/address_book.html",
     "web/retro/info.html",
     "web/retro/symbol_overview.html",
+    "web/.stellar-archive-addon/managed/retro-address_book.html",
+    "web/.stellar-archive-addon/originals/retro-address_book.html",
 )
 
 
