@@ -142,7 +142,11 @@ is filled without repeated tiles or colored side fill.
 ### Symbols in boxes
 
 - Adds an optional `Symbols in boxes` checkbox.
+- Enables the checkbox by default on a new installation. An existing saved
+  preference is preserved during updates.
 - When disabled, Retro keeps its original behavior: incoming boxes are red and change to green after connection.
+- When disabled, incoming glyphs are completely hidden instead of being left
+  temporarily in the centre of the ring.
 - When enabled, incoming boxes remain transparent so the selected symbols stay visible.
 - Delays the wormhole image until the final incoming symbol reaches its box.
 - Handles 7-, 8-, and 9-symbol addresses without assuming a fixed address length.

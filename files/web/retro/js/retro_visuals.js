@@ -6,7 +6,7 @@
     background_image: '',
     background_version: 0,
     incoming_style: 'classic',
-    incoming_symbols_in_boxes: false,
+    incoming_symbols_in_boxes: true,
     glow_enabled: false,
     glow_color: '#fffea5',
     glow_intensity: 12,

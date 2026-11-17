@@ -126,11 +126,24 @@ def patch_dial(path):
         if marker not in text:
             fail("Unable to add incoming glyph visibility helper to dial.js")
         text = text.replace(marker, helper + marker, 1)
-    text = text.replace(
-        "      buffer.length > bufferIndex\n    ) {",
-        "      buffer.length > bufferIndex &&\n      shouldDisplayIncomingGlyphs()\n    ) {",
-        1,
+    pending_glyph_variants = (
+        (
+            "    if (buffer.length > bufferIndex) {",
+            "    if (buffer.length > bufferIndex && shouldDisplayIncomingGlyphs()) {",
+        ),
+        (
+            "      buffer.length > bufferIndex\n    ) {",
+            "      buffer.length > bufferIndex &&\n"
+            "      shouldDisplayIncomingGlyphs()\n    ) {",
+        ),
     )
+    if not any(patched in text for _, patched in pending_glyph_variants):
+        for original, patched in pending_glyph_variants:
+            if original in text:
+                text = text.replace(original, patched, 1)
+                break
+        else:
+            fail("Unable to guard the pending incoming glyph in dial.js")
     text = text.replace(
         "  if (bufferIndex < 9) {\n",
         "  if (bufferIndex < 9 && shouldDisplayIncomingGlyphs()) {\n",
@@ -172,7 +185,7 @@ def patch_web_server(path):
             '            "incoming_style": "classic",\n'
             '            "glow_enabled": False,',
             '            "incoming_style": "classic",\n'
-            '            "incoming_symbols_in_boxes": False,\n'
+            '            "incoming_symbols_in_boxes": True,\n'
             '            "glow_enabled": False,',
         )
         text = text.replace(
@@ -250,7 +263,7 @@ def patch_web_server(path):
             "background_image": "",
             "background_version": 0,
             "incoming_style": "classic",
-            "incoming_symbols_in_boxes": False,
+            "incoming_symbols_in_boxes": True,
             "glow_enabled": False,
             "glow_color": "#fffea5",
             "glow_intensity": 12,
@@ -679,6 +692,11 @@ def restore(app):
 
 """,
             "",
+        )
+        text = text.replace(
+            "    if (buffer.length > bufferIndex && shouldDisplayIncomingGlyphs()) {",
+            "    if (buffer.length > bufferIndex) {",
+            1,
         )
         text = text.replace(
             "      buffer.length > bufferIndex &&\n"
